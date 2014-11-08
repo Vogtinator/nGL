@@ -1,0 +1,9 @@
+*.o
+*~
+*.tns*
+*.elf
+*.creator
+*.creator.user*
+*.files
+*.includes
+*.config
