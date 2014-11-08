@@ -13,6 +13,8 @@ OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
 
 all: $(EXE).tns
 
+lib: $(OBJS)
+
 %.o: %.cpp
 	$(GPP) -std=c++11 $(GCCFLAGS) -c $< -o $@
 
