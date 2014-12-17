@@ -1,4 +1,5 @@
 //This file will be included in gl.cpp for various different versions
+
 #ifdef TRANSPARENCY
     static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
     {
@@ -265,7 +266,7 @@
         int line_width = xend - xstart;
         if(__builtin_expect(line_width <= -1, true))
         {
-            //Here come the differences
+            //Here are the differences
             const GLFix dz = (zend - zstart) / line_width;
             GLFix z = zend;
 

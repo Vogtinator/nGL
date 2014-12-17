@@ -95,19 +95,19 @@ TEXTURE* loadTextureFromFile(const char* filename)
     if(!skip_space(texture_file))
         return texture;
 
-    if(fscanf(texture_file, "%d", &width) != 1)
+    if(fscanf(texture_file, "%u", &width) != 1)
         return texture;
 
     if(!skip_space(texture_file))
         return texture;
 
-    if(fscanf(texture_file, "%d", &height) != 1)
+    if(fscanf(texture_file, "%u", &height) != 1)
         return texture;
 
     if(!skip_space(texture_file))
         return texture;
 
-    if(fscanf(texture_file, "%d", &pixel_max) != 1 || pixel_max != 255)
+    if(fscanf(texture_file, "%u", &pixel_max) != 1 || pixel_max != 255)
         return texture;
 
     if(!skip_space(texture_file))
