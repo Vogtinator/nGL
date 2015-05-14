@@ -16,22 +16,9 @@ Contrary to most DOS games, nGL doesn't use a single line of assembly! (Except f
 First, you need to know the basics of 3D graphics and how they work.
 I recommend reading a book about OpenGL, you need to undestand what view and projection matrices are and what they do.
 
-GLFix
------
-One of the reasons nGL is so fast on a calculator without FPU is that it is based on fixed-point math.
-GLFix is an 32-bit integer with 8-bit fractional part. Basically, it counts the 1/256th of values.
-The integer 2 would be 512 as 8-bit fixed-point value, but you don't have to worry about that,
-GLFix does those conversations for you automatically.
-
-The obvious advantages are speed and also, well, more "reliable" behaviour, but it also
-has the disadvantage that any value smaller than 1/256th is rounded down to 0, the accuracy is fixed.
-If your values are scaled properly across your entire application, this won't be an issue,
-but keep it in mind.
-
-
 A first program
 ---------------
-You already know all that? Great, let's start programming!
+You already know that all? Great, let's start programming!
 A simple program using nGL has this basic structure:
 ```
 #include <libndls.h>
@@ -67,6 +54,19 @@ To change the background color, add
 glColor3f(0.4f, 0.7f, 1.0f);
 ```
 before glClear to use a nice sky blue.
+
+GLFix
+-----
+One of the reasons nGL is so fast on a calculator without FPU is that it is based on fixed-point math.
+GLFix is an 32-bit integer with 8-bit fractional part. Basically, it counts the 1/256th of values.
+The integer 2 would be 512 as 8-bit fixed-point value, but you don't have to worry about that,
+GLFix does those conversations for you automatically.
+
+The obvious advantages are speed and also, well, more "reliable" behaviour, but it also
+has the disadvantage that any value smaller than 1/256th is rounded down to 0, the accuracy is fixed.
+If your values are scaled properly across your entire application, this won't be an issue,
+but keep it in mind.
+
 
 First triangle
 --------------
