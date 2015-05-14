@@ -18,10 +18,7 @@ static const TEXTURE *texture;
 static unsigned int vertices_count = 0;
 static VERTEX vertices[4];
 static GLDrawMode draw_mode = GL_TRIANGLES;
-static bool recording = false, force_color = false;
-static VERTEX* record_buffer = nullptr;
-static int record_length = 0;
-static bool is_monochrome;
+static bool force_color = false, is_monochrome;
 static COLOR *screen_inverted; //For monochrome calcs
 #ifdef SAFE_MODE
     static int matrix_stack_left = MATRIX_STACK_SIZE;
@@ -67,10 +64,6 @@ void nglInit()
     texture = nullptr;
     vertices_count = 0;
     draw_mode = GL_TRIANGLES;
-
-    recording = false;
-    record_buffer = nullptr;
-    record_length = 0;
 
     is_monochrome = !has_colors;
 
@@ -732,22 +725,7 @@ void nglSetColor(const COLOR c)
     color = c;
 }
 
-void nglStartRecording(VERTEX* buffer)
-{
-    record_buffer = buffer;
-
-    recording = true;
-    record_length = 0;
-}
-
-int nglStopRecording()
-{
-    recording = false;
-
-    return record_length;
-}
-
-void nglAddVertices(VERTEX *buffer, unsigned int length)
+void nglAddVertices(const VERTEX *buffer, unsigned int length)
 {
     while(length--)
         nglAddVertex(buffer++);
@@ -767,13 +745,6 @@ void nglAddVertex(const VERTEX* vertex)
             return;
         }
     #endif
-
-    if(recording)
-    {
-        *record_buffer++ = *vertex;
-        ++record_length;
-        return;
-    }
 
     VERTEX *current_vertex = &vertices[vertices_count];
 

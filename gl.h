@@ -5,7 +5,7 @@
 #error You need to use a C++ compiler to use nGL!
 #endif
 
-//nGL version 0.7
+//nGL version 0.7.1
 #include "fix.h"
 
 #include "glconfig.h"
@@ -96,11 +96,8 @@ void nglSetColor(const COLOR c);
 void nglRotateX(const GLFix a);
 void nglRotateY(const GLFix a);
 void nglRotateZ(const GLFix a);
-//Every vertex added will be appended to this buffer. It has to be allocated with enough capacity
-void nglStartRecording(VERTEX *buffer);
-//This returns the count of vertices added to the buffer
-int nglStopRecording();
-void nglAddVertices(VERTEX *buffer, unsigned int length);
+//To add nGL VERTEX instances directly without using old gl*3f calls
+void nglAddVertices(const VERTEX *buffer, unsigned int length);
 void nglAddVertex(const VERTEX &vertex);
 void nglAddVertex(const VERTEX *vertex);
 #ifdef TEXTURE_SUPPORT

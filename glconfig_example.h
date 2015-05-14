@@ -1,5 +1,5 @@
 //Colored triangles can still be used with nglForceColor(true)
-#define TEXTURE_SUPPORT
+//#define TEXTURE_SUPPORT
 
 //Warning, this is slower than textured rendering!
 //#define INTERPOLATE_COLORS
