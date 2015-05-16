@@ -5,6 +5,7 @@ Like all modern 3D graphics, nGL supports texture mapping.
 Like OpenGL, you have two attributes per vertex used for texture mapping: U and V.
 This is a texture:
 
+```
  +--------> X
  |  \O/
  |   |
@@ -12,6 +13,7 @@ This is a texture:
  |
  V
  Y
+```
 
 A texture is a picture that is mapped onto a 3D object at specific points, the vertices.
 The X-Coordinate of a texture is the U-Attribute of the vertex, the Y-Coordinate is the V-Attribute.
