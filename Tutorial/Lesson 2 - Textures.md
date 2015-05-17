@@ -31,7 +31,7 @@ For this example, we're going to use this PNG:
 ![texture](http://i.imgur.com/vUUKAXx.png)
 
 To use it from within nGL, we have to convert it into a different format, using [ConvertImg](http://github.com/Vogtinator/ConvertImg).
-Invoke "ConvertImg --format=ngl wall.png wall.h" to create "wall.png".
+Invoke "ConvertImg --format=ngl wall.png wall.h" to create "wall.h".
 For reference, it's also included below:
 
 ```
