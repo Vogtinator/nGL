@@ -188,7 +188,7 @@ void nglPerspective(VERTEX *v)
 #ifdef BETTER_PERSPECTIVE
     float new_z = v->z;
     decltype(new_z) new_x = v->x, new_y = v->y;
-    decltype(new_z) div = decltype(new_z)(NEAR_PLANE)/new_z;
+    decltype(new_z) div = decltype(new_z)(near_plane)/new_z;
 
     new_x *= div;
     new_y *= div;
