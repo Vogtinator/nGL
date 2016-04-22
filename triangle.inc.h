@@ -1,5 +1,4 @@
 //This file will be included in gl.cpp for various different versions
-
 #ifdef TRANSPARENCY
     static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
     {
@@ -361,6 +360,4 @@
             #endif
         }
     }
-
-    return;
 }

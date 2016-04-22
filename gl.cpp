@@ -65,17 +65,15 @@ void nglInit()
     vertices_count = 0;
     draw_mode = GL_TRIANGLES;
 
-    is_monochrome = !has_colors;
+    is_monochrome = lcd_type() == SCR_320x240_4;
 
     if(is_monochrome)
     {
-        //The current LCD buffer isn't large enough, allocate a larger one
-        COLOR *new_buffer = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
         screen_inverted = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
-        std::fill(new_buffer, new_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, 0xFFFF);
-        SCREEN_BASE_ADDRESS = reinterpret_cast<void*>(new_buffer);
-        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b1000; //Switch to 16-bit mode
+        lcd_init(SCR_320x240_16);
     }
+    else
+        lcd_init(SCR_320x240_565);
 
     #ifdef SAFE_MODE
         matrix_stack_left = MATRIX_STACK_SIZE;
@@ -116,15 +114,8 @@ void nglUninit()
     delete[] transformation;
     delete[] z_buffer;
 
-    if(is_monochrome)
-    {
-        //Switch to 4-bit mode again
-        *reinterpret_cast<uint32_t*>(0xC000001C) = (*reinterpret_cast<uint32_t*>(0xC000001C) & ~0b1110) | 0b0100;
-        COLOR *new_buffer = reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS);
-        SCREEN_BASE_ADDRESS = reinterpret_cast<void*>(0xA4000100);
-        delete[] new_buffer;
-        delete[] screen_inverted;
-    }
+    delete[] screen_inverted;
+    lcd_init(SCR_TYPE_INVALID);
 
     #ifdef FPS_COUNTER
         //Restore timer and interrupt handler
@@ -210,6 +201,7 @@ void nglPerspective(VERTEX *v)
     v->y = GLFix(SCREEN_HEIGHT - 1) - v->y;
 
 #if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
+    //TODO: Move this somewhere else
     if(force_color)
         return;
 
@@ -251,10 +243,10 @@ void nglDisplay()
         while(--ptr >= screen)
             *--ptr_inv = ~*ptr;
 
-        std::copy(screen_inverted, screen_inverted + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+        lcd_blit(screen_inverted, SCR_320x240_16);
     }
     else
-        std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(SCREEN_BASE_ADDRESS));
+        lcd_blit(screen, SCR_320x240_565);
 
     #ifdef FPS_COUNTER
         if(frames == 0)
@@ -757,8 +749,6 @@ void nglAddVertex(const VERTEX* vertex)
     nglMultMatVectRes(transformation, vertex, current_vertex);
 
     ++vertices_count;
-
-    GLFix x1, y1, x2, y2;
 
     switch(draw_mode)
     {

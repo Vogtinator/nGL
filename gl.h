@@ -31,6 +31,17 @@ typedef Fix<8, int_fast32_t> GLFix;
 
 typedef uint16_t COLOR;
 
+struct VECTOR3
+{
+    VECTOR3() : VECTOR3(0, 0, 0) {}
+    VECTOR3(const GLFix x, const GLFix y, const GLFix z)
+        : x(x), y(y), z(z) {}
+
+    void print() const { printf("(%d %d %d)", x.toInteger<int>(), y.toInteger<int>(), z.toInteger<int>()); }
+
+    GLFix x, y, z;
+};
+
 struct VERTEX
 {
     VERTEX() : VERTEX(0, 0, 0, 0, 0, 0) {}
@@ -39,7 +50,8 @@ struct VERTEX
 
     void print() const { printf("(%d %d %d) (0x%x) (%d %d)\n", x.toInteger<int>(), y.toInteger<int>(), z.toInteger<int>(), c, u.toInteger<int>(), v.toInteger<int>()); }
 
-    GLFix x, y, z, u, v;
+    GLFix x, y, z;
+    GLFix u, v;
     COLOR c;
 };
 
