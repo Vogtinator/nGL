@@ -15,9 +15,9 @@ public:
     constexpr Fix(const float v) : value(static_cast<T>(v * static_cast<float>(1<<s))) {}
     constexpr Fix(const unsigned int v) : value(v << s) {}
     constexpr Fix(const int v) : value(v << s) {}
-    constexpr operator float() { return toFloat(); }
-    constexpr operator int() { return toInteger<int>(); }
-    constexpr operator unsigned int() { return toInteger<unsigned int>(); }
+    constexpr operator float() const { return toFloat(); }
+    constexpr operator int() const { return toInteger<int>(); }
+    constexpr operator unsigned int() const { return toInteger<unsigned int>(); }
 
     Fix<s,T>& operator=(const Fix<s,T> &other) { value = other.value; return *this; }
 
@@ -56,21 +56,21 @@ public:
     Fix<s,T>& operator /=(const int other) { value /= other; return *this; }
     Fix<s,T>& operator /=(const Fix<s,T>& other) { value = (value << s) / other.value; return *this; }
 
-    constexpr bool operator >(const Fix<s,T>& other) { return value > other.value; }
-    constexpr bool operator <(const Fix<s,T>& other) { return value < other.value; }
-    template <typename U> constexpr bool operator >=(const U other) { return value >= other<<s; }
-    constexpr bool operator >=(const Fix<s,T>& other) { return value >= other.value; }
-    constexpr bool operator <=(const Fix<s,T>& other) { return value <= other.value; }
-    constexpr bool operator ==(const Fix<s,T>& other) { return value == other.value; }
-    constexpr bool operator !=(const Fix<s,T>& other) { return value != other.value; }
+    constexpr bool operator >(const Fix<s,T>& other) const { return value > other.value; }
+    constexpr bool operator <(const Fix<s,T>& other) const { return value < other.value; }
+    template <typename U> constexpr bool operator >=(const U other) const { return value >= other<<s; }
+    constexpr bool operator >=(const Fix<s,T>& other) const { return value >= other.value; }
+    constexpr bool operator <=(const Fix<s,T>& other) const { return value <= other.value; }
+    constexpr bool operator ==(const Fix<s,T>& other) const { return value == other.value; }
+    constexpr bool operator !=(const Fix<s,T>& other) const { return value != other.value; }
 
     template <typename U>
-    constexpr U toInteger()
+    constexpr U toInteger() const
     {
         return value >> s;
     }
 
-    constexpr float toFloat()
+    constexpr float toFloat() const
     {
         return static_cast<float>(value) / static_cast<float>(1<<s);
     }
