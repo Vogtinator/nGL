@@ -16,7 +16,7 @@ all: $(EXE).tns
 lib: $(OBJS)
 
 %.o: %.cpp
-	$(GPP) -std=c++11 $(GCCFLAGS) -c $< -o $@
+	$(GPP) -std=gnu++11 $(GCCFLAGS) -c $< -o $@
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -c $< -o $@
