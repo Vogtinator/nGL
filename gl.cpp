@@ -32,31 +32,6 @@ static COLOR *screen_inverted; //For monochrome calcs
     static int matrix_stack_left = MATRIX_STACK_SIZE;
 #endif
 
-#if defined(FPS_COUNTER) && defined(_TINSPIRE)
-    volatile int fps = 0;
-    static volatile int frames = 0;
-    static uint32_t saved_timer_load;
-    static uint32_t saved_timer_control;
-    static uint32_t saved_irq_handler;
-    static uint32_t saved_irq_mask;
-
-    #define TIMER_REG(x) (*reinterpret_cast<volatile uint32_t*>(0x900d0000 + x))
-    #define VIC_REG(x) (*reinterpret_cast<volatile uint32_t*>(0xdc000000 + x))
-    #define IRQ_HANDLER (*reinterpret_cast<volatile uint32_t*>(0x38))
-
-    static void __attribute__((interrupt("IRQ"))) irq_handler()
-    {
-        //If timer caused interrupt
-        if(VIC_REG(0) & (1 << 19))
-        {
-            fps = frames;
-            frames = 0;
-            //Acknowledge
-            TIMER_REG(0xc) = 1;
-        }
-    }
-#endif
-
 void nglInit()
 {
     init_fastmath();
@@ -91,34 +66,6 @@ void nglInit()
     #ifdef SAFE_MODE
         matrix_stack_left = MATRIX_STACK_SIZE;
     #endif
-
-    #if defined(FPS_COUNTER) && defined(_TINSPIRE)
-        fps = frames = 0;
-
-        //Setup timer and interrupt handler
-        saved_timer_load = TIMER_REG(0x0);
-        saved_timer_control = TIMER_REG(0x8);
-        saved_irq_handler = IRQ_HANDLER;
-        saved_irq_mask = VIC_REG(0x10);
-
-        VIC_REG(0x14) = ~0; //Disable all IRQs
-        IRQ_HANDLER = reinterpret_cast<uint32_t>(irq_handler);
-        VIC_REG(0x10) = (1 << 19); //Except 19
-
-        //Disable timer
-        TIMER_REG(0x8) = 0;
-        TIMER_REG(0xc) = 1;
-
-        //Configure timer to timeout every second
-        TIMER_REG(0x4) = 1;
-        TIMER_REG(0x18) = TIMER_REG(0x0) = 38768;
-        TIMER_REG(0x8) = (1 << 7) | (1 << 6) | (1 << 5) | (1 << 1);
-
-        //Enable IRQs
-        __asm__ volatile("mrs r0, cpsr;"
-                        "bic r0, r0, #0x80;"
-                        "msr cpsr_c, r0;" ::: "r0");
-    #endif
 }
 
 void nglUninit()
@@ -133,23 +80,6 @@ void nglUninit()
         lcd_init(SCR_TYPE_INVALID);
     #else
         //TODO
-    #endif
-
-    #if defined(FPS_COUNTER) && defined(_TINSPIRE)
-        //Restore timer and interrupt handler
-        //Disable IRQs
-        __asm__ volatile("mrs r0, cpsr;"
-                        "orr r0, r0, #0x80;"
-                        "msr cpsr_c, r0;" ::: "r0");
-
-        VIC_REG(0x14) = ~0;
-        IRQ_HANDLER = saved_irq_handler;
-        VIC_REG(0x10) = saved_irq_mask;
-
-        TIMER_REG(0x8) = 0;
-        TIMER_REG(0xc) = 1;
-        TIMER_REG(0x0) = saved_timer_load;
-        TIMER_REG(0x8) = saved_timer_control;
     #endif
 }
 
@@ -274,24 +204,17 @@ void nglDisplay()
     #endif
 
     #ifdef FPS_COUNTER
-        #ifdef _TINSPIRE
-	        if(frames == 0)
-                printf("FPS: %d\n", fps);
+        static unsigned int frames = 0;
+        ++frames;
 
-            ++frames;
-        #else
-            static unsigned int frames = 0;
-            ++frames;
-
-            static time_t last = 0;
-            time_t now = time(nullptr);
-            if(now != last)
-            {
-                printf("FPS: %d\n", frames);
-                last = now;
-                frames = 0;
-            }
-        #endif
+        static time_t last = 0;
+        time_t now = time(nullptr);
+        if(now != last)
+        {
+            printf("FPS: %d\n", frames);
+            last = now;
+            frames = 0;
+        }
     #endif
 }
 

@@ -17,7 +17,7 @@
 //It's a bit slower though.
 //#define BETTER_PERSPECTIVE
 
-//Crashes sometimes, only works on CX
+//Print "FPS: <fps>\n" to stdout every second
 //#define FPS_COUNTER
 
 #if defined(TEXTURE_SUPPORT) && defined(INTERPOLATE_COLORS)
