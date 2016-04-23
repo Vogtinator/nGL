@@ -1,8 +1,6 @@
 #include <algorithm>
 #include <cstdio>
 
-#include <libndls.h>
-
 #include "gl.h"
 #include "texturetools.h"
 

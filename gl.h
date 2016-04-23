@@ -143,7 +143,7 @@ void glScale3f(const GLFix x, const GLFix y, const GLFix z);
 void glPushMatrix();
 void glPopMatrix();
 
-#ifdef FPS_COUNTER
+#if defined(FPS_COUNTER) && defined(_TINSPIRE)
 
 //This fixes some calls. printf seems to disable IRQs, which is not really what we need.
 #define printf(...) do { printf(__VA_ARGS__); __asm__ volatile("mrs r0, cpsr; bic r0, r0, #0x80; msr cpsr_c, r0;" ::: "r0"); } while(0)

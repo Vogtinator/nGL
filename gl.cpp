@@ -1,6 +1,14 @@
+#include <ctime>
 #include <utility>
 #include <algorithm>
+
+#ifdef _TINSPIRE
 #include <libndls.h>
+#else
+#include <SDL/SDL.h>
+#include <assert.h>
+SDL_Surface *scr;
+#endif
 
 #include "gl.h"
 #include "fastmath.h"
@@ -24,10 +32,9 @@ static COLOR *screen_inverted; //For monochrome calcs
     static int matrix_stack_left = MATRIX_STACK_SIZE;
 #endif
 
-#ifdef FPS_COUNTER
+#if defined(FPS_COUNTER) && defined(_TINSPIRE)
     volatile int fps = 0;
     static volatile int frames = 0;
-    volatile bool ngl_input_changed;
     static uint32_t saved_timer_load;
     static uint32_t saved_timer_control;
     static uint32_t saved_irq_handler;
@@ -65,21 +72,27 @@ void nglInit()
     vertices_count = 0;
     draw_mode = GL_TRIANGLES;
 
-    is_monochrome = lcd_type() == SCR_320x240_4;
+    #ifdef _TINSPIRE
+        is_monochrome = lcd_type() == SCR_320x240_4;
 
-    if(is_monochrome)
-    {
-        screen_inverted = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
-        lcd_init(SCR_320x240_16);
-    }
-    else
-        lcd_init(SCR_320x240_565);
+        if(is_monochrome)
+        {
+            screen_inverted = new COLOR[SCREEN_WIDTH*SCREEN_HEIGHT];
+            lcd_init(SCR_320x240_16);
+        }
+        else
+            lcd_init(SCR_320x240_565);
+    #else
+        SDL_Init(SDL_INIT_VIDEO);
+        scr = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 16, SDL_SWSURFACE);
+        assert(scr);
+    #endif
 
     #ifdef SAFE_MODE
         matrix_stack_left = MATRIX_STACK_SIZE;
     #endif
 
-    #ifdef FPS_COUNTER
+    #if defined(FPS_COUNTER) && defined(_TINSPIRE)
         fps = frames = 0;
 
         //Setup timer and interrupt handler
@@ -115,9 +128,14 @@ void nglUninit()
     delete[] z_buffer;
 
     delete[] screen_inverted;
-    lcd_init(SCR_TYPE_INVALID);
 
-    #ifdef FPS_COUNTER
+    #ifdef _TINSPIRE
+        lcd_init(SCR_TYPE_INVALID);
+    #else
+        //TODO
+    #endif
+
+    #if defined(FPS_COUNTER) && defined(_TINSPIRE)
         //Restore timer and interrupt handler
         //Disable IRQs
         __asm__ volatile("mrs r0, cpsr;"
@@ -236,23 +254,44 @@ void nglSetBuffer(COLOR *screenBuf)
 
 void nglDisplay()
 {
-    if(is_monochrome)
-    {
-        //Flip everything, as 0xFFFF is white on CX, but black on classic
-        COLOR *ptr = screen + SCREEN_HEIGHT*SCREEN_WIDTH, *ptr_inv = screen_inverted + SCREEN_HEIGHT*SCREEN_WIDTH;
-        while(--ptr >= screen)
-            *--ptr_inv = ~*ptr;
+    #ifdef _TINSPIRE
+        if(is_monochrome)
+        {
+            //Flip everything, as 0xFFFF is white on CX, but black on classic
+            COLOR *ptr = screen + SCREEN_HEIGHT*SCREEN_WIDTH, *ptr_inv = screen_inverted + SCREEN_HEIGHT*SCREEN_WIDTH;
+            while(--ptr >= screen)
+                *--ptr_inv = ~*ptr;
 
-        lcd_blit(screen_inverted, SCR_320x240_16);
-    }
-    else
-        lcd_blit(screen, SCR_320x240_565);
+            lcd_blit(screen_inverted, SCR_320x240_16);
+        }
+        else
+            lcd_blit(screen, SCR_320x240_565);
+    #else
+        SDL_LockSurface(scr);
+        std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(scr->pixels));
+        SDL_UnlockSurface(scr);
+        SDL_UpdateRect(scr, 0, 0, 0, 0);
+    #endif
 
     #ifdef FPS_COUNTER
-        if(frames == 0)
-            printf("FPS: %d\n", fps);
+        #ifdef _TINSPIRE
+	        if(frames == 0)
+                printf("FPS: %d\n", fps);
 
-        frames++;
+            ++frames;
+        #else
+            static unsigned int frames = 0;
+            ++frames;
+
+            static time_t last = 0;
+            time_t now = time(nullptr);
+            if(now != last)
+            {
+                printf("FPS: %d\n", frames);
+                last = now;
+                frames = 0;
+            }
+        #endif
     #endif
 }
 
