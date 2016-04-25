@@ -154,6 +154,11 @@
         #endif
     }
 
+    #ifdef TEXTURE_SUPPORT
+        //Stack access is faster
+        TEXTURE loc_texture = *texture;
+    #endif
+
     //If xstart will get smaller than xend
     if(dx_lower < dx_far)
         goto otherway;
@@ -190,7 +195,7 @@
                         *z_buf = z;
                     #endif
                     #ifdef TEXTURE_SUPPORT
-                        COLOR c = texture->bitmap[u.floor() + v.floor()*texture->width];
+                        COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
                         #ifdef TRANSPARENCY
                             if(__builtin_expect(c != 0x0000, 1))
                             {
@@ -293,7 +298,7 @@
                         *z_buf = z;
                     #endif
                     #ifdef TEXTURE_SUPPORT
-                        COLOR c = texture->bitmap[u.floor() + v.floor()*texture->width];
+                        COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
                         #ifdef TRANSPARENCY
                             if(__builtin_expect(c != 0x0000, 1))
                             {
