@@ -11,6 +11,8 @@ OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
 
 all: $(EXE).elf
 
+gl.o: triangle.inc.h
+
 %.o: %.cpp
 	@echo Compiling $<...
 	@$(GPP) -std=c++11 $(GCCFLAGS) -c $< -o $@

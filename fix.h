@@ -7,14 +7,16 @@
 #include <cstring>
 #include <cstdio>
 
-template <unsigned int s, typename T=int32_t> class Fix
+template <unsigned int s, typename T=int_fast32_t> class Fix
 {   
 public:
     constexpr Fix() : value(0) {}
+    template <unsigned int s2, typename T2> Fix(const Fix<s2, T2> f) : value((s2 > s) ? (f.value >> (s2 - s)) : (f.value << (s-s2))) {}
     //constexpr Fix(const Fix<s,T> &other) : value(other.value) {}
     constexpr Fix(const float v) : value(static_cast<T>(v * static_cast<float>(1<<s))) {}
     constexpr Fix(const unsigned int v) : value(v << s) {}
-    constexpr Fix(const int v) : value(v << s) {}
+    constexpr Fix(const int v) : value(static_cast<unsigned int>(v) << s) {}
+    constexpr Fix(const long int v) : value(static_cast<unsigned long int>(v) << s) {}
     constexpr operator float() const { return toFloat(); }
     constexpr operator int() const { return toInteger<int>(); }
     constexpr operator unsigned int() const { return toInteger<unsigned int>(); }
@@ -41,7 +43,7 @@ public:
     Fix<s,T> operator -(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = value - other.value; return ret; }
     template <typename U> Fix<s,T> operator -(const U other) const { Fix<s,T> ret; ret.value = value - (other<<s); return ret; }
 
-    Fix<s,T> operator *(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = (value * other.value) >> s; return ret; }
+    template <unsigned int s2, typename T2> Fix<s,T> operator *(const Fix<s2,T2>& other) const { Fix<s,T> ret; ret.value = (value * other.value) >> s2; return ret; }
     template <typename U> Fix<s,T> operator *(const U other) const { Fix<s,T> ret; ret.value = value * other; return ret; }
 
     Fix<s,T> operator /(const Fix<s,T>& other) const { Fix<s,T> ret; ret.value = (value << s) / other.value; return ret; }
@@ -84,18 +86,6 @@ public:
     void fromFloat(const float v)
     {
         value = static_cast<T>(v * static_cast<float>(1<<s));
-    }
-
-    template <unsigned int s2, typename T2>
-    operator Fix<s2, T2>() const
-    {
-        Fix<s2, T2> ret;
-        if(s2 > s)
-            ret.value = value << (s2-s);
-        else
-            ret.value = value >> (s-s2);
-
-        return ret;
     }
 
     Fix<s,T>& normaliseAngle()

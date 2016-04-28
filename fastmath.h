@@ -3,8 +3,7 @@
 
 #include "gl.h"
 
-constexpr int PRECISION = GLFix::precision;
-typedef GLFix FFix;
+typedef Fix<8, int32_t> FFix;
 
 void init_fastmath();
 void uninit_fastmath();

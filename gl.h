@@ -5,7 +5,7 @@
 #error You need to use a C++ compiler to use nGL!
 #endif
 
-//nGL version 0.7.1
+//nGL version 0.8
 #include "fix.h"
 
 #include "glconfig.h"
@@ -16,8 +16,9 @@
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 
-//Change if you want to, but it may not work.
-typedef Fix<8, int_fast32_t> GLFix;
+//GLFix is an integral part of all calculations.
+//Changing resolution and width may be an improvement or even break everything.
+typedef Fix<8, int32_t> GLFix;
 
 /* Column vectors and matrices:
  * [ [0][0] [0][1] [0][2] [0][3] ]   [x]

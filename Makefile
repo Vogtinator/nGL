@@ -15,14 +15,10 @@ all: $(EXE).tns
 
 lib: $(OBJS)
 
+gl.o: triangle.inc.h
+
 %.o: %.cpp
 	$(GPP) -std=gnu++11 $(GCCFLAGS) -c $< -o $@
-
-%.o: %.c
-	$(GCC) $(GCCFLAGS) -c $< -o $@
-
-%.o: %.S
-	$(GCC) $(GCCFLAGS) -c $< -o $@
 
 $(EXE).elf: $(OBJS)
 	+$(LD) $^ -o $@ $(GCCFLAGS) $(LDFLAGS)
