@@ -88,7 +88,9 @@ struct RGB
     GLFix r, g, b;
 };
 
-extern volatile int fps;
+#ifdef FPS_COUNTER
+    extern volatile unsigned int fps;
+#endif
 extern MATRIX *transformation;
 
 RGB rgbColor(const COLOR c);

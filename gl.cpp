@@ -28,6 +28,9 @@ static VERTEX vertices[4];
 static GLDrawMode draw_mode = GL_TRIANGLES;
 static bool force_color = false, is_monochrome;
 static COLOR *screen_inverted; //For monochrome calcs
+#ifdef FPS_COUNTER
+    volatile unsigned int fps;
+#endif
 #ifdef SAFE_MODE
     static int matrix_stack_left = MATRIX_STACK_SIZE;
 #endif
@@ -211,6 +214,7 @@ void nglDisplay()
         time_t now = time(nullptr);
         if(now != last)
         {
+            fps = frames;
             printf("FPS: %d\n", frames);
             last = now;
             frames = 0;
