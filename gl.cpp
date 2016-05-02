@@ -125,6 +125,15 @@ void nglMultMatVectRes(const MATRIX *mat1, const VERTEX *vect, VERTEX *res)
     res->z = P(mat1, 2, 0)*x + P(mat1, 2, 1)*y + P(mat1, 2, 2)*z + P(mat1, 2, 3);
 }
 
+void nglMultMatVectRes(const MATRIX *mat1, const VECTOR3 *vect, VECTOR3 *res)
+{
+    GLFix x = vect->x, y = vect->y, z = vect->z;
+
+    res->x = P(mat1, 0, 0)*x + P(mat1, 0, 1)*y + P(mat1, 0, 2)*z + P(mat1, 0, 3);
+    res->y = P(mat1, 1, 0)*x + P(mat1, 1, 1)*y + P(mat1, 1, 2)*z + P(mat1, 1, 3);
+    res->z = P(mat1, 2, 0)*x + P(mat1, 2, 1)*y + P(mat1, 2, 2)*z + P(mat1, 2, 3);
+}
+
 void nglPerspective(VERTEX *v)
 {
 #ifdef BETTER_PERSPECTIVE

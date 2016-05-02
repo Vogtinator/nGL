@@ -129,6 +129,7 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2);
 
 void nglPerspective(VERTEX *v);
 void nglMultMatVectRes(const MATRIX *mat1, const VERTEX *vect, VERTEX *res);
+void nglMultMatVectRes(const MATRIX *mat1, const VECTOR3 *vect, VECTOR3 *res);
 void nglMultMatMat(MATRIX *mat1, const MATRIX *mat2);
 const TEXTURE *nglGetTexture();
 
