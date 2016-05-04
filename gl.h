@@ -38,7 +38,7 @@ struct VECTOR3
     VECTOR3(const GLFix x, const GLFix y, const GLFix z)
         : x(x), y(y), z(z) {}
 
-    void print() const { printf("(%d %d %d)", x.toInteger<int>(), y.toInteger<int>(), z.toInteger<int>()); }
+    void print() const { printf("(%d %d %d)\n", x.toInteger<int>(), y.toInteger<int>(), z.toInteger<int>()); }
 
     GLFix x, y, z;
 };
@@ -128,6 +128,7 @@ void nglInterpolateVertexZ(const VERTEX *from, const VERTEX *to, VERTEX *res);
 void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2);
 
 void nglPerspective(VERTEX *v);
+void nglPerspective(VECTOR3 *v);
 void nglMultMatVectRes(const MATRIX *mat1, const VERTEX *vect, VERTEX *res);
 void nglMultMatVectRes(const MATRIX *mat1, const VECTOR3 *vect, VECTOR3 *res);
 void nglMultMatMat(MATRIX *mat1, const MATRIX *mat2);

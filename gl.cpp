@@ -149,9 +149,9 @@ void nglPerspective(VERTEX *v)
 #else
     GLFix div = near_plane/v->z;
 
-    //Round to integers, as we don't lose the topmost 8 bits with integer multiplication
-    v->x.value = v->x.toInteger<int>() * div.value;
-    v->y.value = v->y.toInteger<int>() * div.value;
+    //Round to integers, as we don't lose the topmost bits with integer multiplication
+    v->x = div * v->x.toInteger<int>();
+    v->y = div * v->y.toInteger<int>();
 #endif
 
     // (0/0) is in the center of the screen
@@ -189,6 +189,33 @@ void nglPerspective(VERTEX *v)
 #endif
 }
 
+void nglPerspective(VECTOR3 *v)
+{
+#ifdef BETTER_PERSPECTIVE
+    float new_z = v->z;
+    decltype(new_z) new_x = v->x, new_y = v->y;
+    decltype(new_z) div = decltype(new_z)(near_plane)/new_z;
+
+    new_x *= div;
+    new_y *= div;
+
+    v->x = new_x;
+    v->y = new_y;
+#else
+    GLFix div = near_plane/v->z;
+
+    //Round to integers, as we don't lose the topmost bits with integer multiplication
+    v->x = div * v->x.toInteger<int>();
+    v->y = div * v->y.toInteger<int>();
+#endif
+
+    // (0/0) is in the center of the screen
+    v->x += SCREEN_WIDTH/2;
+    v->y += SCREEN_HEIGHT/2;
+
+    v->y = GLFix(SCREEN_HEIGHT - 1) - v->y;
+}
+
 void nglSetBuffer(COLOR *screenBuf)
 {
     screen = screenBuf;
@@ -224,7 +251,7 @@ void nglDisplay()
         if(now != last)
         {
             fps = frames;
-            printf("FPS: %d\n", frames);
+            printf("FPS: %ud\n", frames);
             last = now;
             frames = 0;
         }
