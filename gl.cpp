@@ -7,7 +7,7 @@
 #else
 #include <SDL/SDL.h>
 #include <assert.h>
-SDL_Surface *scr;
+static SDL_Surface *scr;
 #endif
 
 #include "gl.h"
@@ -251,7 +251,7 @@ void nglDisplay()
         if(now != last)
         {
             fps = frames;
-            printf("FPS: %ud\n", frames);
+            printf("FPS: %u\n", frames);
             last = now;
             frames = 0;
         }
