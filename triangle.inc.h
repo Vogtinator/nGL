@@ -189,7 +189,7 @@
             decltype(screen) screen_buf = screen_buf_line + x1;
             for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
             {
-                if(__builtin_expect(*z_buf > z, false))
+                if(__builtin_expect(*z_buf > z, true))
                 {
                     #ifndef TRANSPARENCY
                         *z_buf = z;
@@ -292,7 +292,7 @@
             decltype(screen) screen_buf = screen_buf_line + x1;
             for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
             {
-                if(__builtin_expect(*z_buf > z, false))
+                if(__builtin_expect(*z_buf > z, true))
                 {
                     #ifndef TRANSPARENCY
                         *z_buf = z;
