@@ -861,15 +861,7 @@ void glTexCoord2f(const GLFix nu, const GLFix nv)
 
 void glVertex3f(const GLFix x, const GLFix y, const GLFix z)
 {
-    const VERTEX ver = {
-            .x = x,
-            .y = y,
-            .z = z,
-            .u = u,
-            .v = v,
-            .c = color
-    };
-
+    const VERTEX ver{x, y, z, u, v, color};
     nglAddVertex(&ver);
 }
 
