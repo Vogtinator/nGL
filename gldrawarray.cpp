@@ -36,7 +36,7 @@ static bool drawTriangle(ProcessedPosition *processed, const IndexedVertex &low,
     }
 
     if(p_middle.transformed.z < GLFix(CLIP_PLANE))
-        invisible[++count_invisible] = MAKE_VERTEX(p_middle.transformed, middle);
+        invisible[count_invisible++] = MAKE_VERTEX(p_middle.transformed, middle);
     else
     {
         visible[count_visible] = &middle;
@@ -44,7 +44,7 @@ static bool drawTriangle(ProcessedPosition *processed, const IndexedVertex &low,
     }
 
     if(p_high.transformed.z < GLFix(CLIP_PLANE))
-        invisible[++count_invisible] = MAKE_VERTEX(p_high.transformed, high);
+        invisible[count_invisible++] = MAKE_VERTEX(p_high.transformed, high);
     else
     {
         visible[count_visible] = &high;
@@ -121,8 +121,8 @@ void nglDrawArray(const IndexedVertex *vertices, const unsigned int count_vertic
         // Reset processed vertices and apply transformation
         for(unsigned int i = 0; i < count_positions; ++i)
         {
-          processed[i].perspective_available = false;
-          nglMultMatVectRes(transformation, &positions[i], &processed[i].transformed);
+            processed[i].perspective_available = false;
+            nglMultMatVectRes(transformation, &positions[i], &processed[i].transformed);
         }
     }
 
