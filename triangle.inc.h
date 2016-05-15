@@ -165,7 +165,8 @@
 
     for(; y <= high_y; y += 1, z_buf_line += SCREEN_WIDTH, screen_buf_line += SCREEN_WIDTH)
     {
-        int line_width = xend - xstart;
+        const int x1 = xstart, x2 = xend;
+        const int line_width = x2 - x1;
         if(__builtin_expect(line_width >= 1, true))
         {
             const GLFix dz = (zend - zstart) / line_width;
@@ -182,8 +183,6 @@
 
                 GLFix r = rstart, g = gstart, b = bstart;
             #endif
-
-            int x1 = xstart, x2 = xend;
 
             decltype(z_buffer) z_buf = z_buf_line + x1;
             decltype(screen) screen_buf = screen_buf_line + x1;
@@ -267,7 +266,8 @@
     otherway:
     for(; y <= high_y; y += 1, screen_buf_line += SCREEN_WIDTH, z_buf_line += SCREEN_WIDTH)
     {
-        int line_width = xend - xstart;
+        const int x1 = xend, x2 = xstart;
+        const int line_width = x1 - x2;
         if(__builtin_expect(line_width <= -1, true))
         {
             //Here are the differences
@@ -285,8 +285,6 @@
 
                 GLFix r = rend, g = gend, b = bend;
             #endif
-
-            int x1 = xend, x2 = xstart;
 
             decltype(z_buffer) z_buf = z_buf_line + x1;
             decltype(screen) screen_buf = screen_buf_line + x1;
