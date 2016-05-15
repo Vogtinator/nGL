@@ -6,7 +6,7 @@
 /* Apply perspective to a ProcessedVertex
  * and return the resulting VERTEX.
  * Caches the result in the ProcessedVertex. */
-static VERTEX perspective(const IndexedVertex &v, ProcessedVertex &p)
+static VERTEX perspective(const IndexedVertex &v, ProcessedPosition &p)
 {
     if(!p.perspective_available)
     {
@@ -18,13 +18,13 @@ static VERTEX perspective(const IndexedVertex &v, ProcessedVertex &p)
     return MAKE_VERTEX(p.perspective, v);
 }
 
-static bool drawTriangle(ProcessedVertex *processed, const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling)
+static bool drawTriangle(ProcessedPosition *processed, const IndexedVertex &low, const IndexedVertex &middle, const IndexedVertex &high, bool backface_culling)
 {
-    ProcessedVertex &p_low = processed[low.index], &p_middle = processed[middle.index], &p_high = processed[high.index];
+    ProcessedPosition &p_low = processed[low.index], &p_middle = processed[middle.index], &p_high = processed[high.index];
 
     VERTEX invisible[3];
     const IndexedVertex *visible[3];
-    ProcessedVertex *p_visible[3];
+    ProcessedPosition *p_visible[3];
     unsigned int count_invisible = 0, count_visible = 0;
 
     if(p_low.transformed.z < GLFix(CLIP_PLANE))
@@ -61,7 +61,7 @@ static bool drawTriangle(ProcessedVertex *processed, const IndexedVertex &low, c
     {
     case 0:
         return true;
-
+#ifdef Z_CLIPPING
     case 1:
         t0 = MAKE_VERTEX(p_visible[0]->transformed, *visible[0]);
 
@@ -97,7 +97,7 @@ static bool drawTriangle(ProcessedVertex *processed, const IndexedVertex &low, c
         nglDrawTriangleZClipped(&t0, &t1, &v1);
         nglDrawTriangleZClipped(&t1, &v1, &v2);
         return true;
-
+#endif
     case 3:
         invisible[0] = perspective(low, p_low);
         invisible[1] = perspective(middle, p_middle);
@@ -114,7 +114,7 @@ static bool drawTriangle(ProcessedVertex *processed, const IndexedVertex &low, c
     }
 }
 
-void nglDrawArray(const IndexedVertex *vertices, const unsigned int count_vertices, const VECTOR3 *positions, const unsigned int count_positions, ProcessedVertex *processed, const GLDrawMode draw_mode, const bool reset_processed)
+void nglDrawArray(const IndexedVertex *vertices, const unsigned int count_vertices, const VECTOR3 *positions, const unsigned int count_positions, ProcessedPosition *processed, const GLDrawMode draw_mode, const bool reset_processed)
 {
     if(reset_processed)
     {
@@ -141,5 +141,7 @@ void nglDrawArray(const IndexedVertex *vertices, const unsigned int count_vertic
                 drawTriangle(processed, vertices[i + 2], vertices[i + 3], vertices[i], false);
         }
     }
+    else
+        throw "Not implemented";
 }
 
