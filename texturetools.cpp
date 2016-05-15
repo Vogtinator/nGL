@@ -40,7 +40,7 @@ void deleteTexture(TEXTURE *tex)
 
 void copyTexture(const TEXTURE &src, TEXTURE &dest)
 {
-    #ifdef DEBUG
+    #ifdef SAFE_MODE
         if(src.width != dest.width || src.height != dest.height)
         {
             puts("Error: textures don't have the same resolution!");
@@ -57,7 +57,7 @@ struct RGB24 {
     uint8_t b;
 } __attribute__((packed));
 
-bool skip_space(FILE *file)
+static bool skip_space(FILE *file)
 {
     char c;
     do {
@@ -287,19 +287,21 @@ void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsi
     if(src_x >= src.width || src_y >= src.height)
         return;
 
+    // Clip
     w = std::min(w, dest.width - dest_x);
     h = std::min(h, dest.height - dest_y);
+    w = std::min(w, src.width - src_x);
+    h = std::min(h, src.height - src_y);
 
     COLOR *dest_ptr = dest.bitmap + dest_x + dest_y * dest.width;
     const COLOR *src_ptr = src.bitmap + src_x + src_y * src.width;
-
     const unsigned int nextline_dest = dest.width - w, nextline_src = src.width - w;
 
     for(unsigned int i = h; i--;)
     {
         for(unsigned int j = w; j--;)
         {
-            COLOR src = *src_ptr++;
+            const COLOR src = *src_ptr++;
             COLOR *dest = dest_ptr++;
 
             const unsigned int r_o = (*dest >> 11) & 0b11111;
@@ -311,9 +313,9 @@ void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsi
             const unsigned int b_n = (src >> 0) & 0b11111;
 
             //Generate 50% opacity
-            unsigned int r = (r_n + r_o) >> 1;
-            unsigned int g = (g_n + g_o) >> 1;
-            unsigned int b = (b_n + b_o) >> 1;
+            const unsigned int r = (r_n + r_o) >> 1;
+            const unsigned int g = (g_n + g_o) >> 1;
+            const unsigned int b = (b_n + b_o) >> 1;
 
             *dest = (r << 11) | (g << 5) | (b << 0);
         }
