@@ -169,17 +169,18 @@
         const int line_width = x2 - x1;
         if(__builtin_expect(line_width >= 1, true))
         {
-            const GLFix dz = (zend - zstart) / line_width;
+            const auto inv_l = Fix<16, int32_t>(1) / line_width;
+            const GLFix dz = (zend - zstart) * inv_l;
             GLFix z = zstart;
 
             #ifdef TEXTURE_SUPPORT
-                const GLFix du = (uend - ustart) / line_width;
-                const GLFix dv = (vend - vstart) / line_width;
+                const GLFix du = (uend - ustart) * inv_l;
+                const GLFix dv = (vend - vstart) * inv_l;
                 GLFix u = ustart, v = vstart;
             #elif defined(INTERPOLATE_COLORS)
-                const GLFix dr = (rend - rstart) / line_width;
-                const GLFix dg = (gend - gstart) / line_width;
-                const GLFix db = (bend - bstart) / line_width;
+                const GLFix dr = (rend - rstart) * inv_l;
+                const GLFix dg = (gend - gstart) * inv_l;
+                const GLFix db = (bend - bstart) * inv_l;
 
                 GLFix r = rstart, g = gstart, b = bstart;
             #endif
@@ -270,18 +271,19 @@
         const int line_width = x1 - x2;
         if(__builtin_expect(line_width <= -1, true))
         {
+            const auto inv_l = Fix<16, int32_t>(1) / line_width;
             //Here are the differences
-            const GLFix dz = (zend - zstart) / line_width;
+            const GLFix dz = (zend - zstart) * inv_l;
             GLFix z = zend;
 
             #ifdef TEXTURE_SUPPORT
-                const GLFix du = (uend - ustart) / line_width;
-                const GLFix dv = (vend - vstart) / line_width;
+                const GLFix du = (uend - ustart) * inv_l;
+                const GLFix dv = (vend - vstart) * inv_l;
                 GLFix u = uend, v = vend;
             #elif defined(INTERPOLATE_COLORS)
-                const GLFix dr = (rend - rstart) / line_width;
-                const GLFix dg = (gend - gstart) / line_width;
-                const GLFix db = (bend - bstart) / line_width;
+                const GLFix dg = (gend - gstart) * inv_l;
+                const GLFix db = (bend - bstart) * inv_l;
+                const GLFix dr = (rend - rstart) * inv_l;
 
                 GLFix r = rend, g = gend, b = bend;
             #endif
