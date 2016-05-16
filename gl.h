@@ -27,8 +27,10 @@ typedef Fix<8, int32_t> GLFix;
  * [ [3][0] [3][1] [3][2] [3][3] ]   [1] (not used anywhere)
  */
 
-/* If TEXTURE_SUPPORT is enabled and a VERTEX has the highest nibble set, black pixels of the texture won't be drawn */
+/* If TEXTURE_SUPPORT is enabled and a VERTEX has this as color, black pixels of the texture won't be drawn */
 #define TEXTURE_TRANSPARENT 0xF000
+/* Disables backface culling for this face */
+#define TEXTURE_DRAW_BACKFACE 0x0F00
 
 typedef uint16_t COLOR;
 
@@ -88,6 +90,12 @@ struct RGB
     GLFix r, g, b;
 };
 
+#ifdef TEXTURE_SUPPORT
+    #define NGL_DRAW_COLOR (nglIsForceColor())
+#else
+    #define NGL_DRAW_COLOR (true)
+#endif
+
 #ifdef FPS_COUNTER
     extern volatile unsigned int fps;
 #endif
@@ -118,6 +126,7 @@ void nglAddVertex(const VERTEX *vertex);
 #ifdef TEXTURE_SUPPORT
     //Basically glDisable(GL_TEXTURE_2D)
     void nglForceColor(const bool force);
+    bool nglIsForceColor();
 #endif
 //Warning: The nglDraw*-Functions apply perspective projection!
 //Returns whether the triangle is front-facing

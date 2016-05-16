@@ -765,7 +765,7 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[0], &vertices[2]);
         nglDrawLine3D(&vertices[2], &vertices[1]);
 #else
-        nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]);
+        nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2], NGL_DRAW_COLOR || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE);
 #endif
         break;
 
@@ -781,8 +781,8 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[2], &vertices[3]);
         nglDrawLine3D(&vertices[3], &vertices[0]);
 #else
-        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]))
-            nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0]);
+        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), NGL_DRAW_COLOR || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
+            nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0], false);
 #endif
         break;
 
@@ -798,8 +798,8 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[2], &vertices[3]);
         nglDrawLine3D(&vertices[3], &vertices[0]);
 #else
-        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]))
-            nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0]);
+        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), NGL_DRAW_COLOR || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
+            nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0], false);
 #endif
 
         vertices[0] = vertices[2];
@@ -836,6 +836,12 @@ void glBindTexture(const TEXTURE *tex)
 void nglForceColor(const bool force)
 {
     force_color = force;
+}
+
+
+bool nglIsForceColor()
+{
+    return force_color;
 }
 
 void nglSetNearPlane(const GLFix new_near_plane)
