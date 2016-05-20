@@ -14,6 +14,7 @@ private:
 
 TEXTURE* newTexture(const unsigned int w, const unsigned int h, const COLOR fill, const bool transparent, const COLOR transparent_color)
 {
+    // TODO: Don't leak on exception
     TEXTURE *ret = new TEXTURE;
 
     ret->width = w;

@@ -263,10 +263,12 @@ def ngl_obj(obj, position_name):
 
         texture, _ = ngl_textures[texfile]
 
+    #If you draw all objects separately, uncomment this.
+    #With this commented, all objects share the entire positions_ array.
     #position_min = min([index[0] for face in objects[obj]['faces'] for index in face])
     #position_max = max([index[0] for face in objects[obj]['faces'] for index in face])
     position_min = 1
-    position_max = len(vectors['position']) + 1
+    position_max = len(vectors['position'])
 
     vertex_list = [ngl_face(obj, face, position_min) for face in objects[obj]['faces']]
     count_vertices = sum([len(v) for v in objects[obj]['faces']])
