@@ -212,7 +212,7 @@ def ngl_vertex(obj, vertex, color, position_min):
 
             u *= width
             v *= height
-            color = "0" # When a texture is available, the colors is used for flags. Keep them unset.
+            color = "0" # When a texture is available, the color is used for flags. Keep them unset.
 
     return "{" + ", ".join([str(vertex[0] - position_min), format(u, "1.3f")+"f", format(v, "1.3f")+"f", color]) + "}"
 

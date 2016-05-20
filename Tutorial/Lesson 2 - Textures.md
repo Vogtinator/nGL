@@ -31,6 +31,7 @@ For this example, we're going to use this PNG:
 ![texture](http://i.imgur.com/vUUKAXx.png)
 
 To use it from within nGL, we have to convert it into a different format, using [ConvertImg](http://github.com/Vogtinator/ConvertImg).
+You can also use the experimental python (2 and 3) utility in tools/tex2ngl.py, which requires pillow.
 Invoke "ConvertImg --format=ngl wall.png wall.h" to create "wall.h".
 For reference, it's also included below:
 
@@ -90,18 +91,20 @@ We have to assign the right coordinates now:
 Vertex 1 is bottom left: 0 16
 Vertex 2 is top left: 0 0
 Vertex 3 is bottom right: 16 16
+As the color has a special meaning if textures are used, we set it to 0.
+
 That gives us the following array:
 
 ```
 const VERTEX triangle[] =
 {
-	{0, 0, 0, 0, 16, 0xFFFF}, // 1
-	{0, 100, 0, 0, 0, 0xFFFF}, // 2
-	{100, 0, 0, 16, 16, 0xFFFF}, // 3
+	{0, 0, 0, 0, 16, 0}, // 1
+	{0, 100, 0, 0, 0, 0}, // 2
+	{100, 0, 0, 16, 16, 0}, // 3
 
-	{0, 100, 0, 0, 0, 0xFFFF}, // 2
-	{0, 0, 0, 0, 16, 0xFFFF}, // 1
-	{100, 0, 0, 16, 16, 0xFFFF}, // 3
+	{0, 100, 0, 0, 0, 0}, // 2
+	{0, 0, 0, 0, 16, 0}, // 1
+	{100, 0, 0, 16, 16, 0}, // 3
 };
 ```
 
@@ -148,13 +151,13 @@ Quite impressive already, for a single triangle.
 
 const VERTEX triangle[] =
 {
-	{0, 0, 0, 0, 16, 0xFFFF}, // 1
-	{0, 100, 0, 0, 0, 0xFFFF}, // 2
-	{100, 0, 0, 16, 16, 0xFFFF}, // 3
+	{0, 0, 0, 0, 16, 0}, // 1
+	{0, 100, 0, 0, 0, 0}, // 2
+	{100, 0, 0, 16, 16, 0}, // 3
 
-	{0, 100, 0, 0, 0, 0xFFFF}, // 2
-	{0, 0, 0, 0, 16, 0xFFFF}, // 1
-	{100, 0, 0, 16, 16, 0xFFFF}, // 3
+	{0, 100, 0, 0, 0, 0}, // 2
+	{0, 0, 0, 0, 16, 0}, // 1
+	{100, 0, 0, 16, 16, 0}, // 3
 };
 
 int main()
