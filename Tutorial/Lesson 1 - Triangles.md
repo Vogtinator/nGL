@@ -17,7 +17,7 @@ A first program
 ---------------
 You already know that all? Great, let's start programming!
 A simple program using nGL has this basic structure:
-```
+```c
 #include <libndls.h>
 #include "gl.h"
 
@@ -47,7 +47,7 @@ and run make. In a real project, you'll want to seperate nGL from your code, but
 
 if you run this snippet, you'll see a black screen until you quit by pressing ESC.
 To change the background color, add
-```
+```c
 glColor3f(0.4f, 0.7f, 1.0f);
 ```
 before glClear to use a nice sky blue.
@@ -90,7 +90,7 @@ Y
 The "camera" is at (0,0,0) looking in (0,0,1). In OpenGL, the camera looks in (0,0,-1).
 Our first triangle is going to be 100 wide, 100 high and have a distance of 1000 to the camera.
 So we construct our first triangle in an array of vertices outside of main():
-```
+```c
 const VERTEX triangle[] =
 {
 //	 X, Y, Z,    U, V, Color
@@ -101,7 +101,7 @@ const VERTEX triangle[] =
 ```
 
 and this code after glClear:
-```
+```c
 glBegin(GL_TRIANGLES);
 	nglAddVertices(triangle, 3);
 glEnd();
@@ -119,7 +119,7 @@ You might think inserting nglRotateY is enough here - but it's not!
 For one, we need to work against backface culling, and also set the rotation axis correctly.
 The triangle isn't at (0,0,0), it's at (0,0,1000) right now.
 For a rotation around the Y-axis of the triangle it is needed to center the triangle around (0,0,0):
-```
+```c
 const VERTEX triangle[] =
 {
 	{0, 0, 0, 0, 0, 0xFFFF},
@@ -129,7 +129,7 @@ const VERTEX triangle[] =
 ```
 
 and apply the correct transformations:
-```
+```c
 glTranslatef(0, 0, 1000);
 nglRotateY(10);
 glBegin(GL_TRIANGLES);
@@ -141,12 +141,12 @@ When you run this, you'll see a flickering triangle.
 This is because nGL doesn't reset the state after nglDisplay(), just like OpenGL.
 Add glPushMatrix() before glClear and glPopMatrix() before nglDisplay() to make it work as expected.
 To finally get some movement, declare a new variable
-```
+```c
 GLFix angle = 0;
 ```
 
 before the while loop and also change the nglRotateY call to
-```
+```c
 angle += 1;
 nglRotateY(angle.normaliseAngle());
 ```
@@ -154,7 +154,7 @@ nglRotateY(angle.normaliseAngle());
 To wrap back to 0 once angle reaches 360, angle.normaliseAngle() is used.
 This will rotate the triangle around the Y-axis, as expected. However, one half is still missing.
 To fix that, add another triangle, this time the backface, to the array:
-```
+```c
 const VERTEX triangle[] =
 {
 	{0, 0, 0, 0, 0, 0xFFFF}, // 1
@@ -168,19 +168,19 @@ const VERTEX triangle[] =
 ```
 
 and change the call to nglAddVertices to also include the second triangle:
-```
+```c
 nglAddVertices(triangle, 6);
 ```
 
 Alternatively, you could also switch between them as needed, which is also faster:
-```
+```c
 nglAddVertices(angle < GLFix(90) || angle > GLFix(270) ? triangle : (triangle + 3), 3);
 ```
 
 Result: ![Animated result](http://i.imgur.com/zfvqqlr.gif)
 
 Complete code:
-```
+```c
 #include <libndls.h>
 #include "gl.h"
 

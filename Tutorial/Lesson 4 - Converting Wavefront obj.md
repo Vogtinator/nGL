@@ -59,7 +59,7 @@ nGL/tools/obj2ngl.py cube.obj cube.h
 
 Resulting cube.h:
 
-```
+```c
 //Generated from cube.obj by obj2ngl.py
 #include "gldrawarray.h"
 
@@ -131,7 +131,7 @@ to draw an ```ngl_object```, we just need to invoke:
 To allocate ```processed``` we take the maximum of ```count_positions``` in the header file:
 
 
-```
+```c
 size_t max_pos = 0;
 for(auto &&obj : objs_cube_h)
     if(obj->count_positions > max_pos)
@@ -142,7 +142,7 @@ ProcessedPosition *processed = new ProcessedPosition[max_pos];
 
 for drawing, we use a similiar loop, calling ```nGLDrawArray`` and also handling the case with textures:
 
-```
+```c
 for(auto &&obj : objs_cube_h)
 {
     if(obj->texture)
@@ -158,7 +158,7 @@ We also add a call to ```glScale3f(100, 100, 100);``` before the loop to make th
 
 If there are multiple objects in a file that are all part of the same mesh and thus drawn with the same transformation matrix, the most common case, it makes sense to apply the transformation only once:
 
-```
+```c
 bool transformed = false;
 for(auto &&obj : objs_cube_h)
 {
@@ -194,7 +194,7 @@ Have fun modeling and coding!
 
 Full code that runs on Nspire and PC:
 
-```
+```c
 #ifdef _TINSPIRE
 #include <libndls.h>
 #endif
