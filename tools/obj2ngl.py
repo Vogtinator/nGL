@@ -244,9 +244,9 @@ def ngl_obj(obj, position_name):
     if False in [(len(v) == 3) for v in objects[obj]['faces']]:
         if False in [(len(v) == 4) for v in objects[obj]['faces']]:
             if False in [(len(v) == 2) for v in objects[obj]['faces']]:
-                draw_mode = "GL_LINES"
-            else:
                 raise Exception("Object is not completely out of quads or triangles!")
+            else:
+                draw_mode = "GL_LINES"
         else:
             draw_mode = "GL_QUADS"
     else:
