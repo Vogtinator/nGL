@@ -45,7 +45,7 @@ def handle_o(args, file, line):
     global current_object
 
     current_object = args[1]
-    objects[current_object] = {'faces': [], 'material': None}
+    objects[current_object] = {'faces': [], 'material': None, 'face_type': None}
     return True
 
 def handle_newmtl(args, file, line):
@@ -89,9 +89,11 @@ def handle_f(args, file, line):
     
     # Emulate object with multiple materials as multiple objects
     material = objects[current_object]['material']
-    if material is not None and material != current_usemtl:
+    face_type = objects[current_object]['face_type']
+    if (material is not None and material != current_usemtl) or (face_type is not None and face_type != len(args) - 1):
         handle_o(["o", current_object + "_" + str(line)], file, line)
 
+    objects[current_object]['face_type'] = len(args) - 1
     if objects[current_object]['material'] is None:
         objects[current_object]['material'] = current_usemtl
 
@@ -211,7 +213,7 @@ def ngl_vertex(obj, vertex, color, position_min):
                 print("Warning: Texture coords out of range not supported", file=sys.stderr)
 
             u *= width
-            v *= height
+            v = height - v*height
             color = "0" # When a texture is available, the color is used for flags. Keep them unset.
 
     return "{" + ", ".join([str(vertex[0] - position_min), format(u, "1.3f")+"f", format(v, "1.3f")+"f", color]) + "}"
