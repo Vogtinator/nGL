@@ -11,7 +11,7 @@ OBJS += $(patsubst %.S, %.o, $(shell find . -name \*.S))
 
 all: $(EXE).elf
 
-gl.o: triangle.inc.h
+gl.o: triangle.inc.h quad.inc.h
 
 %.o: %.cpp
 	@echo Compiling $<...

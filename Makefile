@@ -15,7 +15,7 @@ all: $(EXE).tns
 
 lib: $(OBJS)
 
-gl.o: triangle.inc.h
+gl.o: triangle.inc.h quad.inc.h
 
 %.o: %.cpp
 	$(GPP) -std=gnu++11 $(GCCFLAGS) -c $< -o $@

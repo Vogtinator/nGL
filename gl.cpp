@@ -424,6 +424,7 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     #undef FORCE_COLOR
 #endif
 #include "triangle.inc.h"
+#include "quad.inc.h"
 
 static void interpolateVertexXLeft(const VERTEX *from, const VERTEX *to, VERTEX *res)
 {
