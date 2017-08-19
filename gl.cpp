@@ -426,9 +426,6 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     #undef FORCE_COLOR
 #endif
 #include "triangle.inc.h"
-#define OCCLUSION_QUERY
-#include "triangle.inc.h"
-#undef OCCLUSION_QUERY
 
 static void interpolateVertexXLeft(const VERTEX *from, const VERTEX *to, VERTEX *res)
 {
