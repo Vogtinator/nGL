@@ -7,6 +7,7 @@
 #else
 #include <SDL/SDL.h>
 #include <assert.h>
+#include <signal.h>
 static SDL_Surface *scr;
 #endif
 
@@ -63,6 +64,7 @@ void nglInit()
     #else
         SDL_Init(SDL_INIT_VIDEO);
         scr = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 16, SDL_SWSURFACE);
+        signal(SIGINT, SIG_DFL);
         assert(scr);
     #endif
 
@@ -613,6 +615,14 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
 #endif
 
 bool nglIsBackface(const VERTEX *v1, const VERTEX *v2, const VERTEX *v3)
+{
+    int x1 = v2->x - v1->x, x2 = v3->x - v1->x;
+    int y1 = v2->y - v1->y, y2 = v3->y - v1->y;
+
+    return x1 * y2 < x2 * y1;
+}
+
+bool nglIsBackface(const VECTOR3 *v1, const VECTOR3 *v2, const VECTOR3 *v3)
 {
     int x1 = v2->x - v1->x, x2 = v3->x - v1->x;
     int y1 = v2->y - v1->y, y2 = v3->y - v1->y;
