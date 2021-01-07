@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "gldrawarray.h"
 
 /* Create a vertex out of a VECTOR3 and IndexedVertex */
@@ -142,6 +144,6 @@ void nglDrawArray(const IndexedVertex *vertices, const unsigned int count_vertic
         }
     }
     else
-        throw "Not implemented";
+        assert(!"Not implemented");
 }
 
