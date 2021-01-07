@@ -12,7 +12,6 @@ template <unsigned int s, typename T=int_fast32_t> class Fix
 public:
     constexpr Fix() : value(0) {}
     template <unsigned int s2, typename T2> Fix(const Fix<s2, T2> f) : value((s2 > s) ? (f.value >> (s2 - s)) : (f.value << (s-s2))) {}
-    //constexpr Fix(const Fix<s,T> &other) : value(other.value) {}
     constexpr Fix(const float v) : value(static_cast<T>(v * static_cast<float>(1<<s))) {}
     constexpr Fix(const unsigned int v) : value(v << s) {}
     constexpr Fix(const int v) : value(static_cast<unsigned int>(v) << s) {}
@@ -20,8 +19,6 @@ public:
     constexpr operator float() const { return toFloat(); }
     constexpr operator int() const { return toInteger<int>(); }
     constexpr operator unsigned int() const { return toInteger<unsigned int>(); }
-
-    Fix<s,T>& operator=(const Fix<s,T> &other) { value = other.value; return *this; }
 
     T round() const { T ret = value >> (s-1); return (ret>>1) + (ret&1); }
     constexpr T floor() const { return value >> s; }
