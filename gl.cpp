@@ -5,12 +5,17 @@
 #ifdef _TINSPIRE
 #include <libndls.h>
 #else
-#include <SDL/SDL.h>
 #include <assert.h>
-#ifndef _WIN32
+#ifdef _WIN32
+    #include <SDL.h>
     #include <signal.h>
+#else
+    #include <SDL/SDL.h>
 #endif
-static SDL_Surface *scr;
+SDL_Window* sdl_window;
+SDL_Renderer* sdl_renderer;
+
+SDL_Texture* sdl_texture; // send to gpu
 #endif
 
 #include "gl.h"
@@ -64,8 +69,14 @@ void nglInit()
         else
             lcd_init(SCR_320x240_565);
     #else
-        SDL_Init(SDL_INIT_VIDEO);
-        scr = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 16, SDL_SWSURFACE);
+        SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN, &sdl_window, &sdl_renderer);
+
+        sdl_texture = SDL_CreateTexture(sdl_renderer,
+            SDL_PIXELFORMAT_RGB565,
+            SDL_TEXTUREACCESS_STREAMING,
+            SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        SDL_SetWindowTitle(sdl_window, "nGl");
 
 #ifndef _WIN32
         signal(SIGINT, SIG_DFL);
@@ -89,7 +100,7 @@ void nglUninit()
     #ifdef _TINSPIRE
         lcd_init(SCR_TYPE_INVALID);
     #else
-        //TODO
+        SDL_DestroyRenderer(sdl_renderer);
     #endif
 }
 
@@ -243,10 +254,10 @@ void nglDisplay()
         else
             lcd_blit(screen, SCR_320x240_565);
     #else
-        SDL_LockSurface(scr);
-        std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(scr->pixels));
-        SDL_UnlockSurface(scr);
-        SDL_UpdateRect(scr, 0, 0, 0, 0);
+        SDL_UpdateTexture(sdl_texture, NULL, screen, SCREEN_WIDTH*sizeof(COLOR));
+        SDL_RenderClear(sdl_renderer);
+        SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
+        SDL_RenderPresent(sdl_renderer);
     #endif
 
     #ifdef FPS_COUNTER
