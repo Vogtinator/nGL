@@ -370,6 +370,10 @@ GLFix nglZBufferAt(const unsigned int x, const unsigned int y)
     return z_buffer[x + y * SCREEN_WIDTH];
 }
 
+constexpr GLFix ABS(GLFix a) {
+    return a >= GLFix(0) ? a : -a;
+}
+
 //Doesn't interpolate colors even if enabled
 void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 {    
