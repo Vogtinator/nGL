@@ -370,10 +370,6 @@ GLFix nglZBufferAt(const unsigned int x, const unsigned int y)
     return z_buffer[x + y * SCREEN_WIDTH];
 }
 
-constexpr GLFix ABS(GLFix a) {
-    return a >= GLFix(0) ? a : -a;
-}
-
 //Doesn't interpolate colors even if enabled
 void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 {    
@@ -384,28 +380,27 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     nglPerspective(&v2_p);
 
     const GLFix diff_x = v2_p.x - v1_p.x;
-    const GLFix diff_y = v2_p.y - v1_p.y;
+    const GLFix dy = (v2_p.y - v1_p.y) / diff_x;
 
     const COLOR c = v1_p.c;
 
     //Height > width? -> Interpolate X
-    //if(dy > GLFix(1) || dy < GLFix(-1))
-
-    // if check passes diff_y should always be non zero
-    if (ABS(diff_x) < ABS(diff_y))
+    if(dy > GLFix(1) || dy < GLFix(-1))
     {
-        if (v2_p.y < v1_p.y)
+        if(v2_p.y < v1_p.y)
             std::swap(v1_p, v2_p);
 
-        const GLFix dx = diff_x / diff_y;
+        const GLFix diff_y = v2_p.y - v1_p.y;
+
+        const GLFix dx = (v2_p.x - v1_p.x) / diff_y;
         const GLFix dz = (v2_p.z - v1_p.z) / diff_y;
 
         int end_y = v2_p.y;
 
-        if (end_y >= SCREEN_HEIGHT)
+        if(end_y >= SCREEN_HEIGHT)
             end_y = SCREEN_HEIGHT - 1;
 
-        for (; v1_p.y <= GLFix(end_y); ++v1_p.y)
+        for(; v1_p.y <= GLFix(end_y); ++v1_p.y)
         {
             pixel(v1_p.x, v1_p.y, v1_p.z, c);
 
@@ -415,19 +410,17 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     }
     else
     {
-        const GLFix dy = diff_x != GLFix(0) ? (diff_y / diff_x) : diff_y;
-
-        if (v2_p.x < v1_p.x)
+        if(v2_p.x < v1_p.x)
             std::swap(v1_p, v2_p);
 
-        const GLFix dz = diff_x != GLFix(0) ? (v2_p.z - v1_p.z) / diff_x : (v2_p.z - v1_p.z);
+        const GLFix dz = (v2_p.z - v1_p.z) / diff_x;
 
         int end_x = v2_p.x;
 
-        if (end_x >= SCREEN_WIDTH)
+        if(end_x >= SCREEN_WIDTH)
             end_x = SCREEN_WIDTH - 1;
 
-        for (; v1_p.x <= GLFix(end_x); ++v1_p.x)
+        for(; v1_p.x <= GLFix(end_x); ++v1_p.x)
         {
             pixel(v1_p.x, v1_p.y, v1_p.z, c);
 
