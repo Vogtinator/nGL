@@ -380,19 +380,20 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     nglPerspective(&v2_p);
 
     const GLFix diff_x = v2_p.x - v1_p.x;
-    const GLFix dy = (v2_p.y - v1_p.y) / diff_x;
+    const GLFix diff_y = v2_p.y - v1_p.y;
 
     const COLOR c = v1_p.c;
 
     //Height > width? -> Interpolate X
-    if(dy > GLFix(1) || dy < GLFix(-1))
+    //if(dy > GLFix(1) || dy < GLFix(-1))
+
+    // if check passes diff_y should always be non zero
+    if (ABS(diff_x) < ABS(diff_y))
     {
         if(v2_p.y < v1_p.y)
             std::swap(v1_p, v2_p);
 
-        const GLFix diff_y = v2_p.y - v1_p.y;
-
-        const GLFix dx = (v2_p.x - v1_p.x) / diff_y;
+        const GLFix dx = diff_x / diff_y;
         const GLFix dz = (v2_p.z - v1_p.z) / diff_y;
 
         int end_y = v2_p.y;
@@ -410,10 +411,13 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     }
     else
     {
+        const GLFix dy = diff_x != GLFix(0) ? (diff_y / diff_x) : diff_y;
+
         if(v2_p.x < v1_p.x)
             std::swap(v1_p, v2_p);
 
-        const GLFix dz = (v2_p.z - v1_p.z) / diff_x;
+        // still need ternary check (for const) since diff_x could be 0
+        const GLFix dz = diff_x != GLFix(0) ? (v2_p.z - v1_p.z) / diff_x : (v2_p.z - v1_p.z);
 
         int end_x = v2_p.x;
 
