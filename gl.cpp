@@ -7,7 +7,9 @@
 #else
 #include <SDL/SDL.h>
 #include <assert.h>
-#include <signal.h>
+#ifndef _WIN32
+    #include <signal.h>
+#endif
 static SDL_Surface *scr;
 #endif
 
@@ -64,7 +66,10 @@ void nglInit()
     #else
         SDL_Init(SDL_INIT_VIDEO);
         scr = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 16, SDL_SWSURFACE);
+
+#ifndef _WIN32
         signal(SIGINT, SIG_DFL);
+#endif
         assert(scr);
     #endif
 
