@@ -377,7 +377,9 @@ constexpr GLFix ABS(GLFix a) {
 //Doesn't interpolate colors even if enabled
 void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 {    
-    //TODO: Z-Clipping
+    // Z-Clipping!
+	if(v1_p.z < near_plane || v2_p.z < near_plane)
+		return;
 
     VERTEX v1_p = *v1, v2_p = *v2;
     nglPerspective(&v1_p);
