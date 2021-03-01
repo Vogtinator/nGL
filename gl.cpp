@@ -35,7 +35,9 @@ static unsigned int vertices_count = 0; // For glAddVertex calls
 static VERTEX vertices[4]; // // For glAddVertex calls
 static GLDrawMode draw_mode = GL_TRIANGLES;
 static bool force_color = false, is_monochrome;
-static COLOR *screen_inverted; //For monochrome calcs
+#ifdef _TINSPIRE
+    static COLOR *screen_inverted; //For monochrome calcs
+#endif
 #ifdef FPS_COUNTER
     volatile unsigned int fps;
 #endif
@@ -97,7 +99,9 @@ void nglUninit()
     delete[] transformation;
     delete[] z_buffer;
 
-    delete[] screen_inverted;
+    #ifdef _TINSPIRE
+        delete[] screen_inverted;
+    #endif
 
     #ifdef _TINSPIRE
         lcd_init(SCR_TYPE_INVALID);
