@@ -31,8 +31,8 @@ static COLOR *screen;
 static GLFix *z_buffer;
 static GLFix near_plane = 256;
 static const TEXTURE *texture;
-static unsigned int vertices_count = 0;
-static VERTEX vertices[4];
+static unsigned int vertices_count = 0; // For glAddVertex calls
+static VERTEX vertices[4]; // // For glAddVertex calls
 static GLDrawMode draw_mode = GL_TRIANGLES;
 static bool force_color = false, is_monochrome;
 static COLOR *screen_inverted; //For monochrome calcs
@@ -76,7 +76,7 @@ void nglInit()
             SDL_TEXTUREACCESS_STREAMING,
             SCREEN_WIDTH, SCREEN_HEIGHT);
 
-        SDL_SetWindowTitle(sdl_window, "nGl");
+        SDL_SetWindowTitle(sdl_window, "nGL");
 
     #ifndef _WIN32
             signal(SIGINT, SIG_DFL);
@@ -102,7 +102,8 @@ void nglUninit()
     #ifdef _TINSPIRE
         lcd_init(SCR_TYPE_INVALID);
     #else
-        SDL_DestroyRenderer(sdl_renderer);
+        //SDL_DestroyRenderer(sdl_renderer);
+        SDL_Quit();
     #endif
 }
 
