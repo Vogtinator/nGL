@@ -78,10 +78,12 @@ void nglInit()
 
         SDL_SetWindowTitle(sdl_window, "nGl");
 
-#ifndef _WIN32
-        signal(SIGINT, SIG_DFL);
-#endif
-        assert(scr);
+    #ifndef _WIN32
+            signal(SIGINT, SIG_DFL);
+    #endif
+    assert(sdl_renderer);
+    assert(sdl_window);
+    assert(sdl_texture);
     #endif
 
     #ifdef SAFE_MODE
