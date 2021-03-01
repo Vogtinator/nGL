@@ -12,10 +12,10 @@
 #else
     #include <SDL/SDL.h>
 #endif
-SDL_Window* sdl_window;
-SDL_Renderer* sdl_renderer;
+static SDL_Window* sdl_window;
+static SDL_Renderer* sdl_renderer;
 
-SDL_Texture* sdl_texture; // send to gpu
+static SDL_Texture* sdl_texture; // send to gpu
 #endif
 
 #include "gl.h"
