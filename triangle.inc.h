@@ -1,4 +1,9 @@
 //This file will be included in gl.cpp for various different versions
+
+#ifdef _WIN32
+#define __builtin_expect(exp, c) (exp)
+#endif
+
 #ifdef TRANSPARENCY
     static void nglDrawTransparentTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
     {
