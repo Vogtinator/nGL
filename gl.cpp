@@ -6,11 +6,11 @@
 #include <libndls.h>
 #else
 #include <assert.h>
-#ifdef _WIN32
-    #include <SDL.h>
-    #include <signal.h>
-#else
-    #include <SDL/SDL.h>
+#include <SDL.h>
+#ifndef _TINSPIRE
+    #ifndef _WIN32
+        #include <signal.h> // for SDL outside of windows
+    #endif
 #endif
 static SDL_Window* sdl_window;
 static SDL_Renderer* sdl_renderer;
