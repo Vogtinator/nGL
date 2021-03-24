@@ -117,6 +117,13 @@ public:
         return ret;
     }
 
+    static Fix<s, T> abs() {
+        Fix<s, T> ret;
+        ret.value = this->value;
+        if (ret > 0) return ret;
+        return -ret;
+    }
+
     void print() const
     {
         char str[32];

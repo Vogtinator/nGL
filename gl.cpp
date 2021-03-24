@@ -5,10 +5,17 @@
 #ifdef _TINSPIRE
 #include <libndls.h>
 #else
-#include <SDL/SDL.h>
 #include <assert.h>
-#include <signal.h>
-static SDL_Surface *scr;
+#include <SDL.h>
+#ifndef _TINSPIRE
+    #ifndef _WIN32
+        #include <signal.h> // for SDL outside of windows
+    #endif
+#endif
+static SDL_Window* sdl_window;
+static SDL_Renderer* sdl_renderer;
+
+static SDL_Texture* sdl_texture; // send to gpu
 #endif
 
 #include "gl.h"
@@ -24,11 +31,13 @@ static COLOR *screen;
 static GLFix *z_buffer;
 static GLFix near_plane = 256;
 static const TEXTURE *texture;
-static unsigned int vertices_count = 0;
-static VERTEX vertices[4];
+static unsigned int vertices_count = 0; // For glAddVertex calls
+static VERTEX vertices[4]; // // For glAddVertex calls
 static GLDrawMode draw_mode = GL_TRIANGLES;
 static bool force_color = false, is_monochrome;
-static COLOR *screen_inverted; //For monochrome calcs
+#ifdef _TINSPIRE
+    static COLOR *screen_inverted; //For monochrome calcs
+#endif
 #ifdef FPS_COUNTER
     volatile unsigned int fps;
 #endif
@@ -62,10 +71,21 @@ void nglInit()
         else
             lcd_init(SCR_320x240_565);
     #else
-        SDL_Init(SDL_INIT_VIDEO);
-        scr = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 16, SDL_SWSURFACE);
-        signal(SIGINT, SIG_DFL);
-        assert(scr);
+        SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN, &sdl_window, &sdl_renderer);
+
+        sdl_texture = SDL_CreateTexture(sdl_renderer,
+            SDL_PIXELFORMAT_RGB565,
+            SDL_TEXTUREACCESS_STREAMING,
+            SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        SDL_SetWindowTitle(sdl_window, "nGL");
+
+    #ifndef _WIN32
+            signal(SIGINT, SIG_DFL);
+    #endif
+    assert(sdl_renderer);
+    assert(sdl_window);
+    assert(sdl_texture);
     #endif
 
     #ifdef SAFE_MODE
@@ -79,12 +99,15 @@ void nglUninit()
     delete[] transformation;
     delete[] z_buffer;
 
-    delete[] screen_inverted;
+    #ifdef _TINSPIRE
+        delete[] screen_inverted;
+    #endif
 
     #ifdef _TINSPIRE
         lcd_init(SCR_TYPE_INVALID);
     #else
-        //TODO
+        //SDL_DestroyRenderer(sdl_renderer);
+        SDL_Quit();
     #endif
 }
 
@@ -238,10 +261,10 @@ void nglDisplay()
         else
             lcd_blit(screen, SCR_320x240_565);
     #else
-        SDL_LockSurface(scr);
-        std::copy(screen, screen + SCREEN_HEIGHT*SCREEN_WIDTH, reinterpret_cast<COLOR*>(scr->pixels));
-        SDL_UnlockSurface(scr);
-        SDL_UpdateRect(scr, 0, 0, 0, 0);
+        SDL_UpdateTexture(sdl_texture, NULL, screen, SCREEN_WIDTH*sizeof(COLOR));
+        SDL_RenderClear(sdl_renderer);
+        SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
+        SDL_RenderPresent(sdl_renderer);
     #endif
 
     #ifdef FPS_COUNTER
@@ -354,29 +377,36 @@ GLFix nglZBufferAt(const unsigned int x, const unsigned int y)
     return z_buffer[x + y * SCREEN_WIDTH];
 }
 
+constexpr GLFix ABS(GLFix a) {
+    return a >= GLFix(0) ? a : -a;
+}
+
 //Doesn't interpolate colors even if enabled
 void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 {    
-    //TODO: Z-Clipping
+    // Z-Clipping!
+    if(v1->z < near_plane || v2->z < near_plane)
+        return;
 
     VERTEX v1_p = *v1, v2_p = *v2;
     nglPerspective(&v1_p);
     nglPerspective(&v2_p);
 
     const GLFix diff_x = v2_p.x - v1_p.x;
-    const GLFix dy = (v2_p.y - v1_p.y) / diff_x;
+    const GLFix diff_y = v2_p.y - v1_p.y;
 
     const COLOR c = v1_p.c;
 
     //Height > width? -> Interpolate X
-    if(dy > GLFix(1) || dy < GLFix(-1))
+    //if(dy > GLFix(1) || dy < GLFix(-1))
+
+    // if check passes diff_y should always be non zero
+    if (ABS(diff_x) < ABS(diff_y))
     {
         if(v2_p.y < v1_p.y)
             std::swap(v1_p, v2_p);
 
-        const GLFix diff_y = v2_p.y - v1_p.y;
-
-        const GLFix dx = (v2_p.x - v1_p.x) / diff_y;
+        const GLFix dx = diff_x / diff_y;
         const GLFix dz = (v2_p.z - v1_p.z) / diff_y;
 
         int end_y = v2_p.y;
@@ -394,10 +424,13 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
     }
     else
     {
+        const GLFix dy = diff_x != GLFix(0) ? (diff_y / diff_x) : diff_y;
+
         if(v2_p.x < v1_p.x)
             std::swap(v1_p, v2_p);
 
-        const GLFix dz = (v2_p.z - v1_p.z) / diff_x;
+        // still need ternary check (for const) since diff_x could be 0
+        const GLFix dz = diff_x != GLFix(0) ? (v2_p.z - v1_p.z) / diff_x : (v2_p.z - v1_p.z);
 
         int end_x = v2_p.x;
 
