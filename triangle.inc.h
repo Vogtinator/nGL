@@ -18,6 +18,10 @@
             #endif
     #endif
 #endif
+    if((low->y < GLFix(0) && middle->y < GLFix(0) && high->y < GLFix(0))
+        || (low->y >= GLFix(SCREEN_HEIGHT) && middle->y >= GLFix(SCREEN_HEIGHT) && high->y >= GLFix(SCREEN_HEIGHT)))
+        return;
+
     if(middle->y > high->y)
         std::swap(middle, high);
 

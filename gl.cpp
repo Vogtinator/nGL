@@ -537,7 +537,10 @@ static void interpolateVertexXRight(const VERTEX *from, const VERTEX *to, VERTEX
 void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
 {
     //If not on screen, skip
-    if((low->y < GLFix(0) && middle->y < GLFix(0) && high->y < GLFix(0)) || (low->y >= GLFix(SCREEN_HEIGHT) && middle->y >= GLFix(SCREEN_HEIGHT) && high->y >= GLFix(SCREEN_HEIGHT)))
+    if((low->x < GLFix(0) && middle->x < GLFix(0) && high->x < GLFix(0))
+       || (low->x >= GLFix(SCREEN_WIDTH) && middle->x >= GLFix(SCREEN_WIDTH) && high->x >= GLFix(SCREEN_WIDTH))
+       || (low->y < GLFix(0) && middle->y < GLFix(0) && high->y < GLFix(0))
+       || (low->y >= GLFix(SCREEN_HEIGHT) && middle->y >= GLFix(SCREEN_HEIGHT) && high->y >= GLFix(SCREEN_HEIGHT)))
         return;
 
     const VERTEX* invisible[3];
@@ -649,6 +652,8 @@ bool nglDrawTriangle(const VERTEX *low, const VERTEX *middle, const VERTEX *high
 
     return true;
 #else
+    if(low->z < GLFix(CLIP_PLANE) && middle->z < GLFix(CLIP_PLANE) && high->z < GLFix(CLIP_PLANE))
+        return true;
 
     VERTEX invisible[3];
     VERTEX visible[3];

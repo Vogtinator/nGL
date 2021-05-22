@@ -24,6 +24,9 @@ static bool drawTriangle(ProcessedPosition *processed, const IndexedVertex &low,
 {
     ProcessedPosition &p_low = processed[low.index], &p_middle = processed[middle.index], &p_high = processed[high.index];
 
+    if(p_low.transformed.z < GLFix(CLIP_PLANE) && p_middle.transformed.z < GLFix(CLIP_PLANE) && p_high.transformed.z < GLFix(CLIP_PLANE))
+        return true;
+
     VERTEX invisible[3];
     const IndexedVertex *visible[3];
     ProcessedPosition *p_visible[3];
