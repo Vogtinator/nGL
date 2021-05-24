@@ -21,7 +21,7 @@ MATRIX *transformation;
 static COLOR color;
 static GLFix u, v;
 static COLOR *screen;
-static GLFix *z_buffer;
+static uint16_t *z_buffer;
 static GLFix near_plane = 256;
 static const TEXTURE *texture;
 static unsigned int vertices_count = 0;
@@ -315,7 +315,7 @@ inline void pixel(const int x, const int y, const GLFix z, const COLOR c)
 
     const int pitch = x + y*SCREEN_WIDTH;
 
-    if(z <= GLFix(CLIP_PLANE) || z_buffer[pitch] <= z)
+    if(z <= GLFix(CLIP_PLANE) || GLFix(z_buffer[pitch]) <= z)
         return;
 
     z_buffer[pitch] = z;
@@ -898,7 +898,7 @@ void glClear(const int buffers)
         std::fill(screen, screen + SCREEN_WIDTH*SCREEN_HEIGHT, color);
 
     if(buffers & GL_DEPTH_BUFFER_BIT)
-        std::fill(z_buffer, z_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, z_buffer->maxValue());
+        std::fill(z_buffer, z_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, UINT16_MAX);
 }
 
 void glLoadIdentity()

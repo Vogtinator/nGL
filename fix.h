@@ -19,6 +19,7 @@ public:
     constexpr operator float() const { return toFloat(); }
     constexpr operator int() const { return toInteger<int>(); }
     constexpr operator unsigned int() const { return toInteger<unsigned int>(); }
+    constexpr operator uint16_t() const { return toInteger<uint16_t>(); }
 
     T round() const { T ret = value >> (s-1); return (ret>>1) + (ret&1); }
     constexpr T floor() const { return value >> s; }
