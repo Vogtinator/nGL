@@ -149,7 +149,7 @@ void nglPerspective(VERTEX *v)
     v->x = new_x;
     v->y = new_y;
 #else
-    GLFix div = near_plane/v->z;
+    auto div = Fix<12, int32_t>(near_plane)/v->z.toInteger<int>();
 
     //Round to integers, as we don't lose the topmost bits with integer multiplication
     v->x = div * v->x.toInteger<int>();
@@ -204,7 +204,7 @@ void nglPerspective(VECTOR3 *v)
     v->x = new_x;
     v->y = new_y;
 #else
-    GLFix div = near_plane/v->z;
+    auto div = Fix<12, int32_t>(near_plane)/v->z.toInteger<int>();
 
     //Round to integers, as we don't lose the topmost bits with integer multiplication
     v->x = div * v->x.toInteger<int>();
