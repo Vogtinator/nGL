@@ -547,17 +547,17 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
     const VERTEX* visible[3];
     int count_invisible = -1, count_visible = -1;
 
-    if(low->x >= GLFix(SCREEN_WIDTH))
+    if(low->x > GLFix(SCREEN_WIDTH-1))
         invisible[++count_invisible] = low;
     else
         visible[++count_visible] = low;
 
-    if(middle->x >= GLFix(SCREEN_WIDTH))
+    if(middle->x > GLFix(SCREEN_WIDTH-1))
         invisible[++count_invisible] = middle;
     else
         visible[++count_visible] = middle;
 
-    if(high->x >= GLFix(SCREEN_WIDTH))
+    if(high->x > GLFix(SCREEN_WIDTH-1))
         invisible[++count_invisible] = high;
     else
         visible[++count_visible] = high;
