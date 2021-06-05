@@ -1,4 +1,4 @@
-//Colored triangles can still be used with nglForceColor(true)
+//Colored triangles can still be used with glBindTexture(nullptr)
 //#define TEXTURE_SUPPORT
 
 //Warning, this is slower than textured rendering!

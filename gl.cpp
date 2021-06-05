@@ -27,7 +27,7 @@ static const TEXTURE *texture;
 static unsigned int vertices_count = 0;
 static VERTEX vertices[4];
 static GLDrawMode draw_mode = GL_TRIANGLES;
-static bool force_color = false, is_monochrome;
+static bool is_monochrome;
 static COLOR *screen_inverted; //For monochrome calcs
 #ifdef FPS_COUNTER
     volatile unsigned int fps;
@@ -164,7 +164,7 @@ void nglPerspective(VERTEX *v)
 
 #if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
     //TODO: Move this somewhere else
-    if(force_color)
+    if(!texture)
         return;
 
     if(v->u > GLFix(texture->width))
@@ -747,14 +747,6 @@ void nglAddVertex(const VERTEX &vertex)
 
 void nglAddVertex(const VERTEX* vertex)
 {
-    #if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
-        if(texture == nullptr && !force_color)
-        {
-            printf("ngl.lang.NoTextureException: Please, don't make me dereference the nullptr!\n");
-            return;
-        }
-    #endif
-
     VERTEX *current_vertex = &vertices[vertices_count];
 
     current_vertex->c = vertex->c;
@@ -780,7 +772,7 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[0], &vertices[2]);
         nglDrawLine3D(&vertices[2], &vertices[1]);
 #else
-        nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2], NGL_DRAW_COLOR || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE);
+        nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2], !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE);
 #endif
         break;
 
@@ -796,7 +788,7 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[2], &vertices[3]);
         nglDrawLine3D(&vertices[3], &vertices[0]);
 #else
-        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), NGL_DRAW_COLOR || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
+        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
             nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0], false);
 #endif
         break;
@@ -813,7 +805,7 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[2], &vertices[3]);
         nglDrawLine3D(&vertices[3], &vertices[0]);
 #else
-        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), NGL_DRAW_COLOR || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
+        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
             nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0], false);
 #endif
 
@@ -843,20 +835,9 @@ void glBindTexture(const TEXTURE *tex)
     texture = tex;
 
 #ifdef SAFE_MODE
-    if(tex->has_transparency && tex->transparent_color != 0)
+    if(tex && tex->has_transparency && tex->transparent_color != 0)
         printf("Bound texture doesn't have black as transparent color!\n");
 #endif
-}
-
-void nglForceColor(const bool force)
-{
-    force_color = force;
-}
-
-
-bool nglIsForceColor()
-{
-    return force_color;
 }
 
 void nglSetNearPlane(const GLFix new_near_plane)

@@ -90,12 +90,6 @@ struct RGB
     GLFix r, g, b;
 };
 
-#ifdef TEXTURE_SUPPORT
-    #define NGL_DRAW_COLOR (nglIsForceColor())
-#else
-    #define NGL_DRAW_COLOR (true)
-#endif
-
 #ifdef FPS_COUNTER
     extern volatile unsigned int fps;
 #endif
@@ -123,11 +117,6 @@ void nglRotateZ(const GLFix a);
 void nglAddVertices(const VERTEX *buffer, unsigned int length);
 void nglAddVertex(const VERTEX &vertex);
 void nglAddVertex(const VERTEX *vertex);
-#ifdef TEXTURE_SUPPORT
-    //Basically glDisable(GL_TEXTURE_2D)
-    void nglForceColor(const bool force);
-    bool nglIsForceColor();
-#endif
 //Warning: The nglDraw*-Functions apply perspective projection!
 //Returns whether the triangle is front-facing
 bool nglDrawTriangle(const VERTEX *low, const VERTEX *middle, const VERTEX *high, bool backface_culling = true);
