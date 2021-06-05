@@ -145,11 +145,7 @@ for drawing, we use a similiar loop, calling ```nGLDrawArray`` and also handling
 ```c
 for(auto &&obj : objs_cube_h)
 {
-    if(obj->texture)
-        glBindTexture(obj->texture);
-
-    nglForceColor(obj->texture == nullptr);
-
+    glBindTexture(obj->texture);
     nglDrawArray(obj->vertices, obj->count_vertices, obj->positions, obj->count_positions, processed, obj->draw_mode);
 }
 ```
@@ -162,11 +158,7 @@ If there are multiple objects in a file that are all part of the same mesh and t
 bool transformed = false;
 for(auto &&obj : objs_cube_h)
 {
-    if(obj->texture)
-        glBindTexture(obj->texture);
-
-    nglForceColor(obj->texture == nullptr);
-
+    glBindTexture(obj->texture);
     nglDrawArray(obj->vertices, obj->count_vertices, obj->positions, obj->count_positions, processed, obj->draw_mode, !transformed);
     transformed = true;
 }
@@ -240,11 +232,7 @@ int main()
         bool transformed = false;
         for(auto &&obj : objs_cube_h)
         {
-            if(obj->texture)
-                glBindTexture(obj->texture);
-
-            nglForceColor(obj->texture == nullptr);
-
+            glBindTexture(obj->texture);
             nglDrawArray(obj->vertices, obj->count_vertices, obj->positions, obj->count_positions, processed, obj->draw_mode, !transformed);
             transformed = true;
         }

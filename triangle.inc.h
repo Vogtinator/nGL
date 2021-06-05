@@ -10,7 +10,7 @@
         void nglDrawTriangleXZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
         {
             #ifdef TEXTURE_SUPPORT
-                if(force_color)
+                if(!texture)
                     return nglDrawTriangleXZClippedForceColor(low, middle, high);
 
                 if(__builtin_expect((low->c & TEXTURE_TRANSPARENT) == TEXTURE_TRANSPARENT, 0))
