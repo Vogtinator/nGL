@@ -34,59 +34,66 @@
     if(high->y < GLFix(0) || low->y >= GLFix(SCREEN_HEIGHT))
         return;
 
+    // The ranges of values from here on allows using some more bits for precision:
+    // X is clipped to screen coords, Z is >= CLIP_PLANE and the application won't
+    // draw primitives that far away.
+    // U and V are bounded to the texture size and R, G and B are between 0 - 1.
+    // Only issue is Y, but exceeding the range there is not that likely in practice.
+    using TriFix = Fix<10, int32_t>;
+
     int low_y = low->y, middle_y = middle->y, high_y = high->y + 1;
 
     const int height_upper = high_y - middle_y;
 
-    const GLFix dx_upper = (high->x - middle->x) / height_upper;
-    const GLFix dz_upper = (high->z - middle->z) / height_upper;
+    const TriFix dx_upper = TriFix(high->x - middle->x) / height_upper;
+    const TriFix dz_upper = TriFix(high->z - middle->z) / height_upper;
 
     const int height_lower = middle_y - low_y + 1;
 
-    const GLFix dx_lower = (middle->x - low->x) / height_lower;
-    const GLFix dz_lower = (middle->z - low->z) / height_lower;
+    const TriFix dx_lower = TriFix(middle->x - low->x) / height_lower;
+    const TriFix dz_lower = TriFix(middle->z - low->z) / height_lower;
 
     const int height_far = high_y - low_y;
 
-    const GLFix dx_far = (high->x - low->x) / height_far;
-    const GLFix dz_far = (high->z - low->z) / height_far;
+    const TriFix dx_far = TriFix(high->x - low->x) / height_far;
+    const TriFix dz_far = TriFix(high->z - low->z) / height_far;
 
     #ifdef TEXTURE_SUPPORT
-        const GLFix du_upper = (high->u - middle->u) / height_upper;
-        const GLFix dv_upper = (high->v - middle->v) / height_upper;
+        const TriFix du_upper = TriFix(high->u - middle->u) / height_upper;
+        const TriFix dv_upper = TriFix(high->v - middle->v) / height_upper;
 
-        const GLFix du_lower = (middle->u - low->u) / height_lower;
-        const GLFix dv_lower = (middle->v - low->v) / height_lower;
+        const TriFix du_lower = TriFix(middle->u - low->u) / height_lower;
+        const TriFix dv_lower = TriFix(middle->v - low->v) / height_lower;
 
-        const GLFix du_far = (high->u - low->u) / height_far;
-        const GLFix dv_far = (high->v - low->v) / height_far;
+        const TriFix du_far = TriFix(high->u - low->u) / height_far;
+        const TriFix dv_far = TriFix(high->v - low->v) / height_far;
 
-        GLFix ustart = low->u, uend = low->u;
-        GLFix vstart = low->v, vend = low->v;
+        TriFix ustart = low->u, uend = low->u;
+        TriFix vstart = low->v, vend = low->v;
     #elif defined(INTERPOLATE_COLORS)
         const RGB high_rgb = rgbColor(high->c);
         const RGB middle_rgb = rgbColor(middle->c);
         const RGB low_rgb = rgbColor(low->c);
 
-        const GLFix dr_upper = (high_rgb.r - middle_rgb.r) / height_upper;
-        const GLFix dg_upper = (high_rgb.g - middle_rgb.g) / height_upper;
-        const GLFix db_upper = (high_rgb.b - middle_rgb.b) / height_upper;
+        const TriFix dr_upper = TriFix(high_rgb.r - middle_rgb.r) / height_upper;
+        const TriFix dg_upper = TriFix(high_rgb.g - middle_rgb.g) / height_upper;
+        const TriFix db_upper = TriFix(high_rgb.b - middle_rgb.b) / height_upper;
 
-        const GLFix dr_lower = (middle_rgb.r - low_rgb.r) / height_lower;
-        const GLFix dg_lower = (middle_rgb.g - low_rgb.g) / height_lower;
-        const GLFix db_lower = (middle_rgb.b - low_rgb.b) / height_lower;
+        const TriFix dr_lower = TriFix(middle_rgb.r - low_rgb.r) / height_lower;
+        const TriFix dg_lower = TriFix(middle_rgb.g - low_rgb.g) / height_lower;
+        const TriFix db_lower = TriFix(middle_rgb.b - low_rgb.b) / height_lower;
 
-        const GLFix dr_far = (high_rgb.r - low_rgb.r) / height_far;
-        const GLFix dg_far = (high_rgb.g - low_rgb.g) / height_far;
-        const GLFix db_far = (high_rgb.b - low_rgb.b) / height_far;
+        const TriFix dr_far = TriFix(high_rgb.r - low_rgb.r) / height_far;
+        const TriFix dg_far = TriFix(high_rgb.g - low_rgb.g) / height_far;
+        const TriFix db_far = TriFix(high_rgb.b - low_rgb.b) / height_far;
 
-        GLFix rstart = low_rgb.r, rend = low_rgb.r;
-        GLFix gstart = low_rgb.g, gend = low_rgb.g;
-        GLFix bstart = low_rgb.b, bend = low_rgb.b;
+        TriFix rstart = low_rgb.r, rend = low_rgb.r;
+        TriFix gstart = low_rgb.g, gend = low_rgb.g;
+        TriFix bstart = low_rgb.b, bend = low_rgb.b;
     #endif
 
     int y = low_y;
-    GLFix xstart = low->x, zstart = low->z, xend = low->x, zend = low->z;
+    TriFix xstart = low->x, zstart = low->z, xend = low->x, zend = low->z;
 
     //Vertical clipping
     if(y < 0)
@@ -136,11 +143,11 @@
     decltype(z_buffer) z_buf_line = z_buffer + pitch;
     decltype(screen) screen_buf_line = screen + pitch;
 
-    GLFix dx_current = dx_lower, dz_current = dz_lower;
+    TriFix dx_current = dx_lower, dz_current = dz_lower;
 #ifdef TEXTURE_SUPPORT
-    GLFix du_current = du_lower, dv_current = dv_lower;
+    TriFix du_current = du_lower, dv_current = dv_lower;
 #elif defined(INTERPOLATE_COLORS)
-    GLFix dr_current = dr_lower, dg_current = dg_lower, db_current = db_lower;
+    TriFix dr_current = dr_lower, dg_current = dg_lower, db_current = db_lower;
 #endif
 
     if(__builtin_expect(y > middle_y, false))
@@ -174,26 +181,26 @@
         if(__builtin_expect(line_width >= 1, true))
         {
             const auto inv_l = Fix<16, int32_t>(1) / line_width;
-            const GLFix dz = (zend - zstart) * inv_l;
-            GLFix z = zstart;
+            const TriFix dz = (zend - zstart) * inv_l;
+            TriFix z = zstart;
 
             #ifdef TEXTURE_SUPPORT
-                const GLFix du = (uend - ustart) * inv_l;
-                const GLFix dv = (vend - vstart) * inv_l;
-                GLFix u = ustart, v = vstart;
+                const TriFix du = (uend - ustart) * inv_l;
+                const TriFix dv = (vend - vstart) * inv_l;
+                TriFix u = ustart, v = vstart;
             #elif defined(INTERPOLATE_COLORS)
-                const GLFix dr = (rend - rstart) * inv_l;
-                const GLFix dg = (gend - gstart) * inv_l;
-                const GLFix db = (bend - bstart) * inv_l;
+                const TriFix dr = (rend - rstart) * inv_l;
+                const TriFix dg = (gend - gstart) * inv_l;
+                const TriFix db = (bend - bstart) * inv_l;
 
-                GLFix r = rstart, g = gstart, b = bstart;
+                TriFix r = rstart, g = gstart, b = bstart;
             #endif
 
             decltype(z_buffer) z_buf = z_buf_line + x1;
             decltype(screen) screen_buf = screen_buf_line + x1;
             for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
             {
-                if(__builtin_expect(GLFix(*z_buf) > z, true))
+                if(__builtin_expect(TriFix(*z_buf) > z, true))
                 {
                     #ifdef TEXTURE_SUPPORT
                         COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
@@ -277,26 +284,26 @@
         {
             const auto inv_l = Fix<16, int32_t>(1) / line_width;
             //Here are the differences
-            const GLFix dz = (zend - zstart) * inv_l;
-            GLFix z = zend;
+            const TriFix dz = (zend - zstart) * inv_l;
+            TriFix z = zend;
 
             #ifdef TEXTURE_SUPPORT
-                const GLFix du = (uend - ustart) * inv_l;
-                const GLFix dv = (vend - vstart) * inv_l;
-                GLFix u = uend, v = vend;
+                const TriFix du = (uend - ustart) * inv_l;
+                const TriFix dv = (vend - vstart) * inv_l;
+                TriFix u = uend, v = vend;
             #elif defined(INTERPOLATE_COLORS)
-                const GLFix dg = (gend - gstart) * inv_l;
-                const GLFix db = (bend - bstart) * inv_l;
-                const GLFix dr = (rend - rstart) * inv_l;
+                const TriFix dg = (gend - gstart) * inv_l;
+                const TriFix db = (bend - bstart) * inv_l;
+                const TriFix dr = (rend - rstart) * inv_l;
 
-                GLFix r = rend, g = gend, b = bend;
+                TriFix r = rend, g = gend, b = bend;
             #endif
 
             decltype(z_buffer) z_buf = z_buf_line + x1;
             decltype(screen) screen_buf = screen_buf_line + x1;
             for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
             {
-                if(__builtin_expect(GLFix(*z_buf) > z, true))
+                if(__builtin_expect(TriFix(*z_buf) > z, true))
                 {
                     #ifdef TEXTURE_SUPPORT
                         COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
