@@ -37,19 +37,13 @@
     int low_y = low->y, middle_y = middle->y, high_y = high->y + 1;
 
     const int height_upper = high_y - middle_y;
-
     const GLFix dx_upper = (high->x - middle->x) / height_upper;
-    const GLFix dz_upper = (high->z - middle->z) / height_upper;
 
     const int height_lower = middle_y - low_y + 1;
-
     const GLFix dx_lower = (middle->x - low->x) / height_lower;
-    const GLFix dz_lower = (middle->z - low->z) / height_lower;
 
     const int height_far = high_y - low_y;
-
     const GLFix dx_far = (high->x - low->x) / height_far;
-    const GLFix dz_far = (high->z - low->z) / height_far;
 
     #ifdef TEXTURE_SUPPORT
         const GLFix du_upper = (high->u - middle->u) / height_upper;
@@ -86,7 +80,7 @@
     #endif
 
     int y = low_y;
-    GLFix xstart = low->x, zstart = low->z, xend = low->x, zend = low->z;
+    GLFix xstart = low->x, xend = low->x;
 
     //Vertical clipping
     if(y < 0)
@@ -103,11 +97,8 @@
         y = 0;
 
         xstart += dx_far * diff;
-        zstart += dz_far * diff;
         xend += dx_lower * diff_lower;
-        zend += dz_lower * diff_lower;
         xend += dx_upper * diff_upper;
-        zend += dz_upper * diff_upper;
 
         #ifdef TEXTURE_SUPPORT
             ustart += du_far * diff;
@@ -133,10 +124,9 @@
         high_y = SCREEN_HEIGHT - 1;
 
     int pitch = y * SCREEN_WIDTH;
-    decltype(z_buffer) z_buf_line = z_buffer + pitch;
     decltype(screen) screen_buf_line = screen + pitch;
 
-    GLFix dx_current = dx_lower, dz_current = dz_lower;
+    GLFix dx_current = dx_lower;
 #ifdef TEXTURE_SUPPORT
     GLFix du_current = du_lower, dv_current = dv_lower;
 #elif defined(INTERPOLATE_COLORS)
@@ -146,7 +136,6 @@
     if(__builtin_expect(y > middle_y, false))
     {
         dx_current = dx_upper;
-        dz_current = dz_upper;
 
         #ifdef TEXTURE_SUPPORT
             du_current = du_upper;
@@ -167,21 +156,19 @@
     if(dx_lower < dx_far)
         goto otherway;
 
-    for(; y <= high_y; y += 1, z_buf_line += SCREEN_WIDTH, screen_buf_line += SCREEN_WIDTH)
+    for(; y <= high_y; y += 1, screen_buf_line += SCREEN_WIDTH)
     {
         const int x1 = xstart, x2 = xend;
         const int line_width = x2 - x1;
         if(__builtin_expect(line_width >= 1, true))
         {
-            const auto inv_l = Fix<16, int32_t>(1) / line_width;
-            const GLFix dz = (zend - zstart) * inv_l;
-            GLFix z = zstart;
-
             #ifdef TEXTURE_SUPPORT
+                const auto inv_l = Fix<16, int32_t>(1) / line_width;
                 const GLFix du = (uend - ustart) * inv_l;
                 const GLFix dv = (vend - vstart) * inv_l;
                 GLFix u = ustart, v = vstart;
             #elif defined(INTERPOLATE_COLORS)
+                const auto inv_l = Fix<16, int32_t>(1) / line_width;
                 const GLFix dr = (rend - rstart) * inv_l;
                 const GLFix dg = (gend - gstart) * inv_l;
                 const GLFix db = (bend - bstart) * inv_l;
@@ -189,32 +176,22 @@
                 GLFix r = rstart, g = gstart, b = bstart;
             #endif
 
-            decltype(z_buffer) z_buf = z_buf_line + x1;
             decltype(screen) screen_buf = screen_buf_line + x1;
-            for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
+            for(int x = x1; x <= x2; x += 1, ++screen_buf)
             {
-                if(__builtin_expect(GLFix(*z_buf) > z, true))
-                {
-                    #ifdef TEXTURE_SUPPORT
-                        COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
-                        #ifdef TRANSPARENCY
-                            if(__builtin_expect(c != 0x0000, 1))
-                            {
-                                *screen_buf = c;
-                                *z_buf = z;
-                            }
-                        #else
+                #ifdef TEXTURE_SUPPORT
+                    COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
+                    #ifdef TRANSPARENCY
+                        if(__builtin_expect(c != 0x0000, 1))
                             *screen_buf = c;
-                            *z_buf = z;
-                        #endif
-                    #elif defined(INTERPOLATE_COLORS)
-                        *screen_buf = colorRGB(r, g, b);
-                        *z_buf = z;
                     #else
-                        *screen_buf = low->c;
-                        *z_buf = z;
+                        *screen_buf = c;
                     #endif
-                }
+                #elif defined(INTERPOLATE_COLORS)
+                    *screen_buf = colorRGB(r, g, b);
+                #else
+                    *screen_buf = low->c;
+                #endif
 
                 #ifdef TEXTURE_SUPPORT
                     u += du;
@@ -224,16 +201,12 @@
                     g += dg;
                     b += db;
                 #endif
-
-                z += dz;
             }
         }
 
         xstart += dx_far;
-        zstart += dz_far;
 
         xend += dx_current;
-        zend += dz_current;
 
         #ifdef TEXTURE_SUPPORT
                 ustart += du_far;
@@ -253,7 +226,6 @@
         if(__builtin_expect(y == middle_y, false))
         {
             dx_current = dx_upper;
-            dz_current = dz_upper;
 
             #ifdef TEXTURE_SUPPORT
                 du_current = du_upper;
@@ -269,22 +241,19 @@
     return;
 
     otherway:
-    for(; y <= high_y; y += 1, screen_buf_line += SCREEN_WIDTH, z_buf_line += SCREEN_WIDTH)
+    for(; y <= high_y; y += 1, screen_buf_line += SCREEN_WIDTH)
     {
         const int x1 = xend, x2 = xstart;
         const int line_width = x1 - x2;
         if(__builtin_expect(line_width <= -1, true))
         {
-            const auto inv_l = Fix<16, int32_t>(1) / line_width;
-            //Here are the differences
-            const GLFix dz = (zend - zstart) * inv_l;
-            GLFix z = zend;
-
             #ifdef TEXTURE_SUPPORT
+                const auto inv_l = Fix<16, int32_t>(1) / line_width;
                 const GLFix du = (uend - ustart) * inv_l;
                 const GLFix dv = (vend - vstart) * inv_l;
                 GLFix u = uend, v = vend;
             #elif defined(INTERPOLATE_COLORS)
+                const auto inv_l = Fix<16, int32_t>(1) / line_width;
                 const GLFix dg = (gend - gstart) * inv_l;
                 const GLFix db = (bend - bstart) * inv_l;
                 const GLFix dr = (rend - rstart) * inv_l;
@@ -292,32 +261,22 @@
                 GLFix r = rend, g = gend, b = bend;
             #endif
 
-            decltype(z_buffer) z_buf = z_buf_line + x1;
             decltype(screen) screen_buf = screen_buf_line + x1;
-            for(int x = x1; x <= x2; x += 1, ++z_buf, ++screen_buf)
+            for(int x = x1; x <= x2; x += 1, ++screen_buf)
             {
-                if(__builtin_expect(GLFix(*z_buf) > z, true))
-                {
-                    #ifdef TEXTURE_SUPPORT
-                        COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
-                        #ifdef TRANSPARENCY
-                            if(__builtin_expect(c != 0x0000, 1))
-                            {
-                                *screen_buf = c;
-                                *z_buf = z;
-                            }
-                        #else
+                #ifdef TEXTURE_SUPPORT
+                    COLOR c = loc_texture.bitmap[u.floor() + v.floor()*loc_texture.width];
+                    #ifdef TRANSPARENCY
+                        if(__builtin_expect(c != 0x0000, 1))
                             *screen_buf = c;
-                            *z_buf = z;
-                        #endif
-                    #elif defined(INTERPOLATE_COLORS)
-                        *screen_buf = colorRGB(r, g, b);
-                        *z_buf = z;
                     #else
-                        *screen_buf = low->c;
-                        *z_buf = z;
+                        *screen_buf = c;
                     #endif
-                }
+                #elif defined(INTERPOLATE_COLORS)
+                    *screen_buf = colorRGB(r, g, b);
+                #else
+                    *screen_buf = low->c;
+                #endif
 
                 #ifdef TEXTURE_SUPPORT
                     u += du;
@@ -327,16 +286,12 @@
                     g += dg;
                     b += db;
                 #endif
-
-                z += dz;
             }
         }
 
         xstart += dx_far;
-        zstart += dz_far;
 
         xend += dx_current;
-        zend += dz_current;
 
         #ifdef TEXTURE_SUPPORT
                 ustart += du_far;
@@ -357,7 +312,6 @@
         if(__builtin_expect(y == middle_y, false))
         {
             dx_current = dx_upper;
-            dz_current = dz_upper;
 
             #ifdef TEXTURE_SUPPORT
                 du_current = du_upper;

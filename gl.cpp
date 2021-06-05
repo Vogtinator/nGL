@@ -223,8 +223,12 @@ void nglSetBuffer(COLOR *screenBuf)
     screen = screenBuf;
 }
 
+void sortAndDraw();
+
 void nglDisplay()
 {
+    sortAndDraw();
+
     #ifdef _TINSPIRE
         if(is_monochrome)
         {
@@ -533,6 +537,23 @@ static void interpolateVertexXRight(const VERTEX *from, const VERTEX *to, VERTEX
 #endif
 }
 
+struct Triangle {
+    Triangle(const VERTEX &v1, const VERTEX &v2, const VERTEX &v3, const TEXTURE *t)
+        : v{v1, v2, v3}, t(t) {}
+    VERTEX v[3];
+    const TEXTURE *t;
+};
+
+struct TriIdxWithZ {
+    TriIdxWithZ(size_t triIdx, GLFix z) : triIdx(triIdx), z(z) {}
+    size_t triIdx;
+    GLFix z;
+};
+
+#include <vector>
+static std::vector<Triangle> tris;
+static std::vector<TriIdxWithZ> triIdxs;
+
 //Right X clipping
 void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
 {
@@ -543,6 +564,13 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
        || (low->y >= GLFix(SCREEN_HEIGHT) && middle->y >= GLFix(SCREEN_HEIGHT) && high->y >= GLFix(SCREEN_HEIGHT)))
         return;
 
+    triIdxs.emplace_back(tris.size(), std::max({low->z, middle->z, high->z}));
+    tris.emplace_back(*low, *middle, *high, texture);
+}
+
+//Right X clipping
+void nglDrawTriangleZClippedReal(const VERTEX *low, const VERTEX *middle, const VERTEX *high)
+{
     const VERTEX* invisible[3];
     const VERTEX* visible[3];
     int count_invisible = -1, count_visible = -1;
@@ -584,6 +612,23 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
         nglDrawTriangleXRightZClipped(visible[0], visible[1], visible[2]);
         break;
     }
+}
+
+void sortAndDraw()
+{
+    std::sort(begin(triIdxs), end(triIdxs), [](const TriIdxWithZ &a, const TriIdxWithZ &b) {
+        return a.z > b.z;
+    });
+
+    for(auto &i : triIdxs)
+    {
+        auto &tri = tris[i.triIdx];
+        texture = tri.t;
+        nglDrawTriangleZClippedReal(tri.v + 0, tri.v + 1, tri.v + 2);
+    }
+
+    tris.clear();
+    triIdxs.clear();
 }
 
 #ifdef Z_CLIPPING
@@ -878,8 +923,8 @@ void glClear(const int buffers)
     if(buffers & GL_COLOR_BUFFER_BIT)
         std::fill(screen, screen + SCREEN_WIDTH*SCREEN_HEIGHT, color);
 
-    if(buffers & GL_DEPTH_BUFFER_BIT)
-        std::fill(z_buffer, z_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, UINT16_MAX);
+    /*if(buffers & GL_DEPTH_BUFFER_BIT)
+        std::fill(z_buffer, z_buffer + SCREEN_WIDTH*SCREEN_HEIGHT, UINT16_MAX);*/
 }
 
 void glLoadIdentity()
