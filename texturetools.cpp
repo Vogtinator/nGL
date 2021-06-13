@@ -61,12 +61,17 @@ struct RGB24 {
 static bool skip_space(FILE *file)
 {
     char c;
+    bool in_comment = false;
     do {
         int i = getc(file);
         if(i == EOF)
             return false;
+        if(i == '#')
+            in_comment = true;
+        if(i == '\n')
+            in_comment = false;
         c = i;
-    } while(c == '\n' || c == '\r' || c == '\t' || c == ' ');
+    } while(in_comment || c == '\n' || c == '\r' || c == '\t' || c == ' ');
 
     ungetc(c, file);
     return true;
