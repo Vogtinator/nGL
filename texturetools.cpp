@@ -307,16 +307,19 @@ void drawTextureOverlay(const TEXTURE &src, const unsigned int src_x, const unsi
     {
         for(unsigned int j = w; j--;)
         {
-            const COLOR src = *src_ptr++;
+            const COLOR srcc = *src_ptr++;
             COLOR *dest = dest_ptr++;
+
+            if(src.has_transparency && srcc == src.transparent_color)
+                continue;
 
             const unsigned int r_o = (*dest >> 11) & 0b11111;
             const unsigned int g_o = (*dest >> 5) & 0b111111;
             const unsigned int b_o = (*dest >> 0) & 0b11111;
 
-            const unsigned int r_n = (src >> 11) & 0b11111;
-            const unsigned int g_n = (src >> 5) & 0b111111;
-            const unsigned int b_n = (src >> 0) & 0b11111;
+            const unsigned int r_n = (srcc >> 11) & 0b11111;
+            const unsigned int g_n = (srcc >> 5) & 0b111111;
+            const unsigned int b_n = (srcc >> 0) & 0b11111;
 
             //Generate 50% opacity
             const unsigned int r = (r_n + r_o) >> 1;
