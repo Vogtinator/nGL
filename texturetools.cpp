@@ -353,7 +353,7 @@ TEXTURE* resizeTexture(const TEXTURE &src, const unsigned int w, const unsigned 
         srcx = 0;
         for(unsigned int j = w; j--;)
         {
-            *ptr++ = src.bitmap[srcx.floor() + srcy.floor() * src.width];
+            *ptr++ = src.bitmap[srcx.round() + srcy.round() * src.width];
             srcx += dx;
         }
         srcy += dy;
