@@ -344,20 +344,11 @@ TEXTURE* resizeTexture(const TEXTURE &src, const unsigned int w, const unsigned 
         return ret;
     }
 
-    GLFix srcx = 0, srcy = 0;
-    const GLFix dx = GLFix(src.width) / GLFix(w), dy = GLFix(src.height) / GLFix(h);
     COLOR *ptr = ret->bitmap;
 
-    for(unsigned int i = h; i--;)
-    {
-        srcx = 0;
-        for(unsigned int j = w; j--;)
-        {
-            *ptr++ = src.bitmap[srcx.round() + srcy.round() * src.width];
-            srcx += dx;
-        }
-        srcy += dy;
-    }
+    for(unsigned int dsty = 0; dsty < h; dsty++)
+        for(unsigned int dstx = 0; dstx < w; dstx++)
+            *ptr++ = src.bitmap[(dstx * src.width / w) + (dsty * src.height / h) * src.width];
 
     return ret;
 }
