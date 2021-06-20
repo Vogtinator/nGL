@@ -32,9 +32,7 @@ static COLOR *screen_inverted; //For monochrome calcs
 #ifdef FPS_COUNTER
     volatile unsigned int fps;
 #endif
-#ifdef SAFE_MODE
-    static int matrix_stack_left = MATRIX_STACK_SIZE;
-#endif
+static int matrix_stack_left = MATRIX_STACK_SIZE;
 
 void nglInit()
 {
@@ -68,9 +66,7 @@ void nglInit()
         assert(scr);
     #endif
 
-    #ifdef SAFE_MODE
-        matrix_stack_left = MATRIX_STACK_SIZE;
-    #endif
+    matrix_stack_left = MATRIX_STACK_SIZE;
 }
 
 void nglUninit()
@@ -162,7 +158,6 @@ void nglPerspective(VERTEX *v)
 
     v->y = GLFix(SCREEN_HEIGHT - 1) - v->y;
 
-#if defined(SAFE_MODE) && defined(TEXTURE_SUPPORT)
     //TODO: Move this somewhere else
     if(!texture)
         return;
@@ -188,7 +183,6 @@ void nglPerspective(VERTEX *v)
         printf("Warning: Texture coord out of bounds!\n");
         v->v = 0;
     }
-#endif
 }
 
 void nglPerspective(VECTOR3 *v)
@@ -825,10 +819,8 @@ void glBindTexture(const TEXTURE *tex)
 {
     texture = tex;
 
-#ifdef SAFE_MODE
     if(tex && tex->has_transparency && tex->transparent_color != 0)
         printf("Bound texture doesn't have black as transparent color!\n");
-#endif
 }
 
 void nglSetNearPlane(const GLFix new_near_plane)
@@ -905,28 +897,24 @@ void glScale3f(const GLFix x, const GLFix y, const GLFix z)
 
 void glPopMatrix()
 {
-    #ifdef SAFE_MODE
-        if(matrix_stack_left == MATRIX_STACK_SIZE)
-        {
-            printf("Error: No matrix left on the stack anymore!\n");
-            return;
-        }
-        ++matrix_stack_left;
-    #endif
+    if(matrix_stack_left == MATRIX_STACK_SIZE)
+    {
+        printf("Error: No matrix left on the stack anymore!\n");
+        return;
+    }
+    ++matrix_stack_left;
 
     --transformation;
 }
 
 void glPushMatrix()
 {
-    #ifdef SAFE_MODE
-        if(matrix_stack_left == 0)
-        {
-            printf("Error: Matrix stack limit reached!\n");
-            return;
-        }
-        matrix_stack_left--;
-    #endif
+    if(matrix_stack_left == 0)
+    {
+        printf("Error: Matrix stack limit reached!\n");
+        return;
+    }
+    matrix_stack_left--;
 
     ++transformation;
     *transformation = *(transformation - 1);

@@ -41,13 +41,11 @@ void deleteTexture(TEXTURE *tex)
 
 void copyTexture(const TEXTURE &src, TEXTURE &dest)
 {
-    #ifdef SAFE_MODE
-        if(src.width != dest.width || src.height != dest.height)
-        {
-            puts("Error: textures don't have the same resolution!");
-            return;
-        }
-    #endif
+    if(src.width != dest.width || src.height != dest.height)
+    {
+        puts("Error: textures don't have the same resolution!");
+        return;
+    }
 
     std::copy(src.bitmap, src.bitmap + src.width*src.height, dest.bitmap);
 }
