@@ -430,9 +430,6 @@ void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2)
 static void interpolateVertexXLeft(const VERTEX *from, const VERTEX *to, VERTEX *res)
 {
     GLFix diff = to->x - from->x;
-    if(diff < GLFix(1) && diff > GLFix(-1))
-        diff = 1;
-
     GLFix end = 0;
     GLFix t = (end - from->x) / diff;
 
@@ -506,9 +503,6 @@ void nglDrawTriangleXRightZClipped(const VERTEX *low, const VERTEX *middle, cons
 static void interpolateVertexXRight(const VERTEX *from, const VERTEX *to, VERTEX *res)
 {
     GLFix diff = to->x - from->x;
-    if(diff < GLFix(1) && diff > GLFix(-1))
-        diff = 1;
-
     GLFix end = (SCREEN_WIDTH - 1);
     GLFix t = (end - from->x) / diff;
 
@@ -590,9 +584,6 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
     void nglInterpolateVertexZ(const VERTEX *from, const VERTEX *to, VERTEX *res)
     {
         GLFix diff = to->z - from->z;
-        if(diff < GLFix(1) && diff > GLFix(-1))
-            diff = 1;
-
         GLFix t = (GLFix(CLIP_PLANE) - from->z) / diff;
 
         res->x = from->x + (to->x - from->x) * t;
