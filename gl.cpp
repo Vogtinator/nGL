@@ -773,7 +773,7 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[2], &vertices[3]);
         nglDrawLine3D(&vertices[3], &vertices[0]);
 #else
-        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
+        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2], !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE))
             nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0], false);
 #endif
         break;
@@ -790,7 +790,7 @@ void nglAddVertex(const VERTEX* vertex)
         nglDrawLine3D(&vertices[2], &vertices[3]);
         nglDrawLine3D(&vertices[3], &vertices[0]);
 #else
-        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2]), !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE)
+        if(nglDrawTriangle(&vertices[0], &vertices[1], &vertices[2], !texture || (vertices[0].c & TEXTURE_DRAW_BACKFACE) != TEXTURE_DRAW_BACKFACE))
             nglDrawTriangle(&vertices[2], &vertices[3], &vertices[0], false);
 #endif
 
