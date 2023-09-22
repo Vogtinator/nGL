@@ -89,29 +89,23 @@ void nglMultMatMat(MATRIX *mat1, MATRIX *mat2)
     GLFix a00 = P(mat1, 0, 0), a01 = P(mat1, 0, 1), a02 = P(mat1, 0, 2), a03 = P(mat1, 0, 3);
     GLFix a10 = P(mat1, 1, 0), a11 = P(mat1, 1, 1), a12 = P(mat1, 1, 2), a13 = P(mat1, 1, 3);
     GLFix a20 = P(mat1, 2, 0), a21 = P(mat1, 2, 1), a22 = P(mat1, 2, 2), a23 = P(mat1, 2, 3);
-    GLFix a30 = P(mat1, 3, 0), a31 = P(mat1, 3, 1), a32 = P(mat1, 3, 2), a33 = P(mat1, 3, 3);
 
     GLFix b00 = P(mat2, 0, 0), b01 = P(mat2, 0, 1), b02 = P(mat2, 0, 2), b03 = P(mat2, 0, 3);
     GLFix b10 = P(mat2, 1, 0), b11 = P(mat2, 1, 1), b12 = P(mat2, 1, 2), b13 = P(mat2, 1, 3);
     GLFix b20 = P(mat2, 2, 0), b21 = P(mat2, 2, 1), b22 = P(mat2, 2, 2), b23 = P(mat2, 2, 3);
-    GLFix b30 = P(mat2, 3, 0), b31 = P(mat2, 3, 1), b32 = P(mat2, 3, 2), b33 = P(mat2, 3, 3);
 
-    P(mat1, 0, 0) = a00*b00 + a01*b10 + a02*b20 + a03*b30;
-    P(mat1, 0, 1) = a00*b01 + a01*b11 + a02*b21 + a03*b31;
-    P(mat1, 0, 2) = a00*b02 + a01*b12 + a02*b22 + a03*b32;
-    P(mat1, 0, 3) = a00*b03 + a01*b13 + a02*b23 + a03*b33;
-    P(mat1, 1, 0) = a10*b00 + a11*b10 + a12*b20 + a13*b30;
-    P(mat1, 1, 1) = a10*b01 + a11*b11 + a12*b21 + a13*b31;
-    P(mat1, 1, 2) = a10*b02 + a11*b12 + a12*b22 + a13*b32;
-    P(mat1, 1, 3) = a10*b03 + a11*b13 + a12*b23 + a13*b33;
-    P(mat1, 2, 0) = a20*b00 + a21*b10 + a22*b20 + a23*b30;
-    P(mat1, 2, 1) = a20*b01 + a21*b11 + a22*b21 + a23*b31;
-    P(mat1, 2, 2) = a20*b02 + a21*b12 + a22*b22 + a23*b32;
-    P(mat1, 2, 3) = a20*b03 + a21*b13 + a22*b23 + a23*b33;
-    P(mat1, 3, 0) = a30*b00 + a31*b10 + a32*b20 + a33*b30;
-    P(mat1, 3, 1) = a30*b01 + a31*b11 + a32*b21 + a33*b31;
-    P(mat1, 3, 2) = a30*b02 + a31*b12 + a32*b22 + a33*b32;
-    P(mat1, 3, 3) = a30*b03 + a31*b13 + a32*b23 + a33*b33;
+    P(mat1, 0, 0) = a00*b00 + a01*b10 + a02*b20;
+    P(mat1, 0, 1) = a00*b01 + a01*b11 + a02*b21;
+    P(mat1, 0, 2) = a00*b02 + a01*b12 + a02*b22;
+    P(mat1, 0, 3) = a00*b03 + a01*b13 + a02*b23 + a03;
+    P(mat1, 1, 0) = a10*b00 + a11*b10 + a12*b20;
+    P(mat1, 1, 1) = a10*b01 + a11*b11 + a12*b21;
+    P(mat1, 1, 2) = a10*b02 + a11*b12 + a12*b22;
+    P(mat1, 1, 3) = a10*b03 + a11*b13 + a12*b23 + a13;
+    P(mat1, 2, 0) = a20*b00 + a21*b10 + a22*b20;
+    P(mat1, 2, 1) = a20*b01 + a21*b11 + a22*b21;
+    P(mat1, 2, 2) = a20*b02 + a21*b12 + a22*b22;
+    P(mat1, 2, 3) = a20*b03 + a21*b13 + a22*b23 + a23;
 }
 
 void nglMultMatVectRes(const MATRIX *mat1, const VERTEX *vect, VERTEX *res)
@@ -265,7 +259,6 @@ void nglRotateX(const GLFix a)
     M(rot, 1, 2) = -sina;
     M(rot, 2, 1) = sina;
     M(rot, 2, 2) = cosa;
-    M(rot, 3, 3) = 1;
 
     nglMultMatMat(transformation, &rot);
 }
@@ -281,7 +274,6 @@ void nglRotateY(const GLFix a)
     M(rot, 1, 1) = 1;
     M(rot, 2, 0) = -sina;
     M(rot, 2, 2) = cosa;
-    M(rot, 3, 3) = 1;
 
     nglMultMatMat(transformation, &rot);
 }
@@ -297,7 +289,6 @@ void nglRotateZ(const GLFix a)
     M(rot, 1, 0) = sina;
     M(rot, 1, 1) = cosa;
     M(rot, 2, 2) = 1;
-    M(rot, 3, 3) = 1;
 
     nglMultMatMat(transformation, &rot);
 }
@@ -868,14 +859,14 @@ void glClear(const int buffers)
 void glLoadIdentity()
 {
     *transformation = {}; // Copy empty matrix into transformation
-    P(transformation, 0, 0) = P(transformation, 1, 1) = P(transformation, 2, 2) = P(transformation, 3, 3) = 1;
+    P(transformation, 0, 0) = P(transformation, 1, 1) = P(transformation, 2, 2) = 1;
 }
 
 void glTranslatef(const GLFix x, const GLFix y, const GLFix z)
 {
     MATRIX trans;
 
-    M(trans, 0, 0) = M(trans, 1, 1) = M(trans, 2, 2) = M(trans, 3, 3) = 1;
+    M(trans, 0, 0) = M(trans, 1, 1) = M(trans, 2, 2) = 1;
     M(trans, 0, 3) = x;
     M(trans, 1, 3) = y;
     M(trans, 2, 3) = z;
@@ -890,7 +881,6 @@ void glScale3f(const GLFix x, const GLFix y, const GLFix z)
     M(scale, 0, 0) = x;
     M(scale, 1, 1) = y;
     M(scale, 2, 2) = z;
-    M(scale, 3, 3) = 1;
 
     nglMultMatMat(transformation, &scale);
 }

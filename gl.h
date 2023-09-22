@@ -24,7 +24,7 @@ typedef Fix<8, int32_t> GLFix;
  * [ [0][0] [0][1] [0][2] [0][3] ]   [x]
  * [ [1][0] [1][1] [1][2] [1][3] ] * [y]
  * [ [2][0] [2][1] [2][2] [2][3] ]   [z]
- * [ [3][0] [3][1] [3][2] [3][3] ]   [1] (not used anywhere)
+ * [   0      0      0      1    ]   [1] (not used anywhere)
  */
 
 /* If TEXTURE_SUPPORT is enabled and a VERTEX has this as color, black pixels of the texture won't be drawn */
@@ -68,7 +68,7 @@ struct TEXTURE
 class MATRIX {
 public:
     MATRIX() {}
-    GLFix data[4][4] = {};
+    GLFix data[3][4] = {};
 };
 
 #define GL_COLOR_BUFFER_BIT 1<<0
