@@ -86,13 +86,20 @@ void nglUninit()
 
 void nglMultMatMat(MATRIX *mat1, MATRIX *mat2)
 {
-    GLFix a00 = P(mat1, 0, 0), a01 = P(mat1, 0, 1), a02 = P(mat1, 0, 2), a03 = P(mat1, 0, 3);
-    GLFix a10 = P(mat1, 1, 0), a11 = P(mat1, 1, 1), a12 = P(mat1, 1, 2), a13 = P(mat1, 1, 3);
-    GLFix a20 = P(mat1, 2, 0), a21 = P(mat1, 2, 1), a22 = P(mat1, 2, 2), a23 = P(mat1, 2, 3);
+    GLFix a00 = P(mat1, 0, 0), a01 = P(mat1, 0, 1), a02 = P(mat1, 0, 2);
+    GLFix a10 = P(mat1, 1, 0), a11 = P(mat1, 1, 1), a12 = P(mat1, 1, 2);
+    GLFix a20 = P(mat1, 2, 0), a21 = P(mat1, 2, 1), a22 = P(mat1, 2, 2);
+    // Multiplying GLFix with GLFix uses a Fix<16> intermediate value,
+    // which limits the result to 16 bits, while Fix * int does not lose
+    // width. Allow for greater range by treating this column as integers.
+    // This way, glTranslatef(x) + glTranslatef(-x) cancels each other
+    // out even for large x.
+    int a03 = P(mat1, 0, 3), a13 = P(mat1, 1, 3), a23 = P(mat1, 2, 3);
 
-    GLFix b00 = P(mat2, 0, 0), b01 = P(mat2, 0, 1), b02 = P(mat2, 0, 2), b03 = P(mat2, 0, 3);
-    GLFix b10 = P(mat2, 1, 0), b11 = P(mat2, 1, 1), b12 = P(mat2, 1, 2), b13 = P(mat2, 1, 3);
-    GLFix b20 = P(mat2, 2, 0), b21 = P(mat2, 2, 1), b22 = P(mat2, 2, 2), b23 = P(mat2, 2, 3);
+    GLFix b00 = P(mat2, 0, 0), b01 = P(mat2, 0, 1), b02 = P(mat2, 0, 2);
+    GLFix b10 = P(mat2, 1, 0), b11 = P(mat2, 1, 1), b12 = P(mat2, 1, 2);
+    GLFix b20 = P(mat2, 2, 0), b21 = P(mat2, 2, 1), b22 = P(mat2, 2, 2);
+    int b03 = P(mat2, 0, 3), b13 = P(mat2, 1, 3), b23 = P(mat2, 2, 3);
 
     P(mat1, 0, 0) = a00*b00 + a01*b10 + a02*b20;
     P(mat1, 0, 1) = a00*b01 + a01*b11 + a02*b21;

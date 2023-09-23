@@ -24,7 +24,10 @@ typedef Fix<8, int32_t> GLFix;
  * [ [0][0] [0][1] [0][2] [0][3] ]   [x]
  * [ [1][0] [1][1] [1][2] [1][3] ] * [y]
  * [ [2][0] [2][1] [2][2] [2][3] ]   [z]
- * [   0      0      0      1    ]   [1] (not used anywhere)
+ * [   0      0      0      1    ]   [1] (implicit)
+ *
+ * The 4th row (translation) is treated with integer precision only
+ * for greater range during matrix multiplication.
  */
 
 /* If TEXTURE_SUPPORT is enabled and a VERTEX has this as color, black pixels of the texture won't be drawn */
@@ -136,6 +139,7 @@ void glLoadIdentity();
 void glBegin(const GLDrawMode mode);
 inline void glEnd() { }
 void glClear(const int buffers);
+//This has effectively only integer precision
 void glTranslatef(const GLFix x, const GLFix y, const GLFix z);
 
 void glBindTexture(const TEXTURE *tex);
