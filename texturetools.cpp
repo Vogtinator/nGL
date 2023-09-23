@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstdio>
+#include <memory>
 
 #include "gl.h"
 #include "texturetools.h"
@@ -56,6 +57,13 @@ struct RGB24 {
     uint8_t b;
 } __attribute__((packed));
 
+struct RGBA32 {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+} __attribute__((packed));
+
 static bool skip_space(FILE *file)
 {
     char c;
@@ -75,6 +83,78 @@ static bool skip_space(FILE *file)
     return true;
 }
 
+//PAM-Loader
+static TEXTURE* loadTextureFromFile_P7(FILE *texture_file)
+{
+    unsigned int width = 0, height = 0, pixels, depth, maxval;
+    std::unique_ptr<RGBA32[]> buffer;
+    uint16_t *ptr16;
+    TEXTURE *texture = nullptr;
+
+    for(;;)
+    {
+        if(!skip_space(texture_file))
+            return nullptr;
+
+        char line[256];
+        if(fgets(line, sizeof(line), texture_file) == NULL)
+            return nullptr;
+
+        if(sscanf(line, "WIDTH %u", &width) == 1)
+            continue;
+        else if(sscanf(line, "HEIGHT %u", &height) == 1)
+            continue;
+        else if(sscanf(line, "DEPTH %u", &depth) == 1)
+        {
+            if(depth != 4)
+                return nullptr;
+        }
+        else if(sscanf(line, "MAXVAL %u", &maxval) == 1)
+        {
+            if(maxval != 255)
+                return nullptr;
+        }
+        else if(strncmp(line, "TUPLTYPE ", 9) == 0)
+        {
+            if(strcmp(line, "TUPLTYPE RGB_ALPHA\n") != 0)
+                return nullptr;
+        }
+        else if(strncmp(line, "ENDHDR", 6) == 0)
+            break;
+    }
+
+    if(width == 0 || height == 0)
+        return nullptr;
+
+    texture = newTexture(width, height);
+    if(!texture)
+        return texture;
+
+    pixels = width * height;
+    buffer.reset(new RGBA32[pixels]);
+
+    if(fread(buffer.get(), sizeof(buffer[0]), pixels, texture_file) != pixels)
+        return texture;
+
+    //Convert to RGB565
+    ptr16 = texture->bitmap;
+    for(RGBA32 *ptr32 = buffer.get(); ptr32 < &buffer[pixels]; ptr32++, ptr16++)
+    {
+        if(ptr32->a < 16)
+        {
+            *ptr16 = 0;
+            continue;
+        }
+
+        *ptr16 = (ptr32->r & 0b11111000) << 8 | (ptr32->g & 0b11111100) << 3 | (ptr32->b & 0b11111000) >> 3;
+        // 0 is transparent, use the darkest gray instead.
+        if(*ptr16 == 0)
+            *ptr16 = 0b0000100000100001;
+    }
+
+    return texture;
+}
+
 //PPM-Loader without support for ascii
 TEXTURE* loadTextureFromFile(const char* filename)
 {
@@ -86,13 +166,20 @@ TEXTURE* loadTextureFromFile(const char* filename)
 
     char magic[3];
     magic[2] = 0;
+
+    if(fread(magic, 1, 2, texture_file) != 2)
+        return nullptr;
+
+    if(strcmp(magic, "P7") == 0)
+        return loadTextureFromFile_P7(texture_file);
+
+    if(strcmp(magic, "P6") != 0)
+        return nullptr;
+
     unsigned int width, height, pixel_max, pixels;
     RGB24 *buffer, *ptr24;
     uint16_t *ptr16;
     TEXTURE *texture = nullptr;
-
-    if(fread(magic, 1, 2, texture_file) != 2 || strcmp(magic, "P6"))
-        return texture;
 
     if(!skip_space(texture_file))
         return texture;
