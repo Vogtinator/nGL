@@ -111,6 +111,12 @@ public:
 #define GL_COLOR_BUFFER_BIT 1<<0
 #define GL_DEPTH_BUFFER_BIT 1<<1
 
+enum GLProjectionMode
+{
+    GL_PROJECTION_PERSPECTIVE,
+    GL_PROJECTION_ORTHOGRAPHIC
+};
+
 enum GLDrawMode
 {
     GL_TRIANGLES,
@@ -162,6 +168,7 @@ void nglDrawTriangleZClipped(const VERTEX *low, const VERTEX *middle, const VERT
 void nglInterpolateVertexZ(const VERTEX *from, const VERTEX *to, VERTEX *res);
 void nglDrawLine3D(const VERTEX *v1, const VERTEX *v2);
 
+void nglSetProjectionMode(GLProjectionMode mode);
 void nglPerspective(VERTEX *v);
 void nglPerspective(VECTOR3 *v);
 void nglMultMatVectRes(const MATRIX *mat1, const VERTEX *vect, VERTEX *res);
